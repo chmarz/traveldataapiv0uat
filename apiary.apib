@@ -1,0 +1,2351 @@
+FORMAT: 1A
+HOST: http://polls.apiblueprint.org/
+
+# UAT: TravelDataAPI
+
+Travel Data APIs allows clients and partners to view itinerary data (a.k.a. “trips”) in real-time. The trips collection can be used as part of an application to view your corporate travel activity for flight, hotel, rental car, rail, cruise/ferry, tour, or bus trips.
+
+## Getting started
+
+You’ll need to obtain these from our account or partner manager, as they’re required in every request:
+
+1. Consumer key
+2. Consumer secret
+3. Encryption key
+4. API end point.
+
+#### Created by your application
+
+You’ll need to create logic within your application to send these in every request:
+
+1. A request token.
+2. A timestamp.
+
+**For more info**: view our [Request authentication & authorization](#introduction/application-logic/request-authentication-&-authorization) guide for more information on where to specify these values in the request and how these values are used. Or skip ahead to our Postman setup instructions (immediately below).
+
+
+
+### Postman setup
+1. Download the [Postman](https://www.getpostman.com/) application.
+2. Open Postman and import our [Postman collection](https://traveldata-apiary.s3.us-east-2.amazonaws.com/postman/prod/collection.json).
+3. Import our [Environment JSON file](https://s3.amazonaws.com/bcd-api-apiary-docs/itinerary/BCDAPIDemo.postman_environment) and modify with your consumer key (`apiKey`), consumer secret (`secretKey`), and environment URL (`environmentURL`).
+
+If you’re new to Postman, view the [Postman documentation](https://learning.getpostman.com/docs/postman/collection_runs/using_environments_in_collection_runs/) for details on how to configure a collection.
+
+### TLS
+
+In accordance with the latest PCI compliance and security standards, the minimum TLS protocol we support is TLS version 1.2.
+
+## Application logic 
+### Request authentication & authorization
+
+In the Authorization header, pass your consumer key and the request token created by your application.
+
+- Your _consumer key_ (in **x-api-key**).
+- Your _request token_ calculated with the AES hashing algorithm. Your request token “digest” should consist of your _consumer key_, _consumer secret_, and a request _timestamp_. These values must then be concatenated with a pipe character as a single string, AES encrypted, then base64 encoded.
+
+**Note**: view documentation (immediately below) for steps and settings to produce the request token.
+
+### Request token
+
+You’ll need to create logic within your application to send a request token in every request. You’ll need your organization’s consumer key, consumer secret, and AES encryption key.
+
+#### Producing the request token
+1. Concatenate your _consumer key_ + _consumer secret_ + and UTC date/time _timestamp_ (in yyyy/MM/dd HH:mm:ss format) with a pipe character to generate a single string with no spaces. For example: `consumerkey|consumersecret|yyyy/MM/dd HH:mm:ss`.
+2. Encrypt the string using your AES encryption key. 
+3. Apply these encryption settings to the string: ECB cipher mode, PKCS7 padding scheme, and a block and key size of 128 bits.
+4. Base64 encode this string using [ISO-8859-1](https://en.wikipedia.org/wiki/ISO/IEC_8859-1) encoding. 
+5. Pass this calculated request token in the Authorization header as _Authorization: Basic YOURREQUESTTOKEN_. For example: `Authorization: Basic sdfnknMMNBJKBNsadsdlKHN9hMB87sdMBSADLzds7634bjkbasfdKJJDS`.
+
+## Common error responses
+
+We **always** respond to request failures with an HTTP status code, and appropriate error details in the response body. This is to allow your application the ability to programmatically resolve errors to request failures, and provide inline error messaging within your application (when appropriate).
+
+The following demonstrates our common error response body: 
+```         
+        {
+        
+            "code": 400,
+            "status": "error",
+            "messages": [
+                "Bad Request: tripId is not found or has incorrect format."
+            ]
+            
+        }
+``` 
+
+## Releases
+### Versioning
+
+We support several endpoint versions at any given time. For new integrations, we recommend using the version indicated in the URL of the endpoint (e.g. /v2.0/).
+
+#### How endpoint versioning occurs
+    - We roll-out backward-compatible changes into the existing endpoint version.
+    - We roll-out backward-incompatible changes into a new endpoint version.
+    - We will notify you of endpoint changes in the API Change Log. 
+Changes
+    - You should expect that we will add elements to released endpoint versions.
+    - You should **never** expect us to remove, rename, or change the data type of an element in any released endpoint version.
+    - You should expect that the order of our response data may change at any given time for every released endpoint version.
+Retiring a version
+    - You should expect that older released endpoint versions will be retired as new versions come online.
+    - You should expect that we will **always** give ample notice before a released endpoint version is to be retired.
+
+Please report any issues to [api.support@bcdtravel.com](mailto://api.support@bcdtravel.com).
+
+# Group Trips
+The Travel Data API consists of a two endpoints with many possible search parameters. While it is possible to search on any combination of search parameters, some parameters may conflict with others.
+This section will provide details on all of the search parameters, as well as some common search combinations. 
+
+## Get Trip [/trips/{tripId}]
+### get_trip_by_id [GET]
+Retrieves an itinerary/trip.
+
+#### Use case
+
+This endpoint can be used on a trip details page within your travel monitoring application to provide users the ability to view all booking and traveler details of a specific trip. It can retrieve any booking completed through your BCD booking application, or via BCD rental car, hotel, or flight book endpoints. It supports a BCD trip identifier in the request for any GDS or non-GDS booked flight, rental car, hotel, rail, cruise/ferry, tour, or bus as the trip identifier (`tripId`). The response contains all available trip information in the itinerary, including trip record identifiers, booking/ticketing dates, travel segments, traveler information, and a breakdown of the trip rate and cost.
+
+#### What’s next?
+
+This is the last step in the travel monitoring application workflow. 
+
+
++ Parameters
+    
+    + tripId: `065f1994-ddda-403b-af88-4c90a7e7b930` (string, required) - The BCD specific identifier of the trip record. Supports any GDS or non-GDS booked flight, rental car, hotel, rail, cruise/ferry, tour, or bus as the identifier.
+        
++ Request
+
+    + Headers
+    
+            Authorization: Signature <calculated signature>
+            x-api-key: Your _consumer key_.
+            
++ Response 200
+    
+    + Attributes(TripsResult)
+    
+    + Body
+```json
+  {
+    "code": 200,
+    "status": "ok",
+    "result": {
+      "identification": {
+        "id": "3404f4ea-7c13-453c-9b4b-70c923577ea5",
+        "sourceId": "70e08fb4-2346-4912-8ea7-6abf1082caef",
+        "recordLocator": "NSTEZH",
+        "gds": "SABRE",
+        "globalCustomerNumber": "2948",
+        "accountId": "9063004",
+        "accountCountryCode": "US",
+        "customerNumber": "9063004",
+        "creationOfficeId": "H2AH",
+        "agentSignature": "AWS",
+        "pseudoCityCode": "H2AH",
+        "dataType": "BCD",
+        "dataProvider": "US"
+      },
+      "tripDetails": {
+        "bookingDateTime": "2018-01-22T07:05:00Z",
+        "ticketedDateTime": "2018-01-24T00:00:00Z",
+        "sourceModifiedDateTime": "2019-08-28T11:53:11Z",
+        "lastModifiedDateTime": "2019-08-28T11:57:39Z"
+      },
+      "travelers": [
+        {
+          "travelerNumber": "1",
+          "name": {
+            "firstName": "Test",
+            "lastName": "User"
+          },
+          "nameInGds": "User/Test",
+          "loyaltyMemberships": [],
+          "seatPreferences": [
+            {
+              "locationCode": "C",
+              "locationText": "Center",
+              "notes": "COMPLEAT-SEAT PREFS/C"
+            }
+          ]
+        }
+      ],
+      "contacts": {
+        "phoneNumbers": [
+          {
+            "number": "188.555.4667 x5228",
+            "type": "Business"
+          },
+          {
+              "number": "670-555-5388",
+              "type": "Cellular"
+          },
+          {
+              "number": "(420)555-4364",
+              "type": "Home"
+          },
+          {
+              "number": "624-555-5076",
+              "type": "Agent"
+          }
+        ],
+        "emailAddresses": [
+          {
+            "emailAddress": "USER_TEST@MYCOMPANY.COM",
+            "type": "To",
+            "isPrimary": true
+          },
+          {
+            "emailAddress": "UTEST@YAHOO.COM",
+            "type": "Cc"
+          },
+          {
+            "emailAddress": "JOHN_DOE@MYCOMPANY.COM",
+            "type": "Manager"
+          }
+        ]
+      },
+      "segments": [
+        {
+          "type": "Air",
+          "segmentNumber": 1,
+          "confirmationNumber": "QWI0Q2",
+          "startDateTime": "2019-09-05T04:45:47+01:00",
+          "endDateTime": "2019-09-05T17:57:53+00:00",
+          "status": {
+            "code": "HK",
+            "description": "Booked"
+          },
+          "isPassive": false,
+          "isCancelled": false,
+          "departureAirport": {
+            "airport": {
+              "code": "CDG",
+              "name": "Charles de Gaulle Airport",
+              "address": {
+                "address1": "95711",
+                "address2": " Roissy Charles de Gaulle",
+                "city": {
+                  "name": "Paris"
+                },
+                "region": {},
+                "country": {
+                  "code": "FR",
+                  "name": "France"
+                },
+                "coordinates": {
+                  "latitude": "49.003197",
+                  "longitude": "2.567023"
+                }
+              },
+              "metroArea": {
+                "code": "PAR",
+                "name": "Paris"
+              },
+              "isMajorAirport": true
+            },
+            "terminal": "AEROGARE 3"
+          },
+          "arrivalAirport": {
+            "airport": {
+              "code": "BRS",
+              "name": "Bristol Airport",
+              "address": {
+                "city": {
+                  "name": "Bristol"
+                },
+                "region": {
+                  "code": "EN"
+                },
+                "country": {
+                  "code": "GB",
+                  "name": "United Kingdom"
+                },
+                "coordinates": {
+                  "latitude": "51.386757",
+                  "longitude": "-2.710659"
+                }
+              },
+              "metroArea": {},
+              "isMajorAirport": true
+            }
+          },
+          "marketingFlight": {
+            "airlineCode": "BM",
+            "airlineName": "Bayu Indonesia",
+            "flightNumber": "2347"
+          },
+          "operatingFlight": {},
+          "isInternational": true,
+          "ticket": {
+            "isTicketed": true,
+            "ticketNumber": "1587337052275",
+            "isTicketless": false,
+            "isETicketCandidate": true
+          },
+          "seatSelections": [],
+          "mealPreferences": [],
+          "meal": {
+            "hasSpecialMeal": 0
+          },
+          "equipment": {
+            "code": "ER4"
+          },
+          "classOfService": {
+            "code": "Q",
+            "description": "Economy"
+          },
+          "inFlightServices": {
+            "code": "10",
+            "description": "Non Smoking"
+          },
+          "flightDistance": 285,
+          "calculatedDuration": "75",
+          "numberOfStops": 0,
+          "isScheduleChange": false,
+          "isFlown": false,
+          "isChangeOfGuage": false,
+          "marriedSegments": [],
+          "connectedSegments": []
+        },
+        {
+          "type": "Bus",
+          "segmentNumber": 1,
+          "confirmationNumber": "d96c12e1-7e73-42ac-918e-0cb4314f362b",
+          "startDateTime": "2019-04-15T15:40:00",
+          "endDateTime": "2019-04-15T17:05:00",
+          "status": {
+            "code": "HK",
+            "description": "Booked"
+          },
+          "isPassive": false,
+          "isCancelled": false,
+          "vendor": {
+            "name": "curabitur"
+          },
+          "departureStation": {
+            "address": {
+              "city": {
+                "code": "iure"
+              }
+            }
+          },
+          "arrivalStation": {
+            "address": {
+              "city": {
+                "code": "similique"
+              }
+            }
+          },
+          "numberInParty": "7654321",
+          "fare": {
+            "quotedRate": {
+              "amount": 1841.0,
+              "currency": "USD"
+            },
+            "penaltyRate": {
+              "amount": 236.0,
+              "currency": "USD"
+            },
+            "netRate": {
+              "amount": 681.0,
+              "currency": "USD"
+            }
+          },
+          "notes": "MSP"
+        },
+        {
+          "type": "Hotel",
+          "segmentNumber": 2,
+          "confirmationNumber": "LDVGLQ-            ",
+          "startDateTime": "2019-09-01T12:11:35",
+          "endDateTime": "2019-09-04T06:21:48",
+          "status": {
+            "code": "GK",
+            "description": "Booked"
+          },
+          "isPassive": true,
+          "isCancelled": false,
+          "property": {
+            "name": "IBIS BRISTOL CENTRE",
+            "hotelChain": {
+              "code": "HN"
+            },
+            "phone": {},
+            "address": {
+              "city": {
+                "code": "BRS"
+              },
+              "region": {},
+              "country": {},
+              "notes": "EXPLORE LANE FOR CAR PARK USE BS1 5LL AVON B"
+            },
+            "airportCode": "BRS"
+          },
+          "numberOfNights": 1,
+          "numberOfRooms": 1,
+          "room": {
+            "type": {},
+            "numberOfGuests": 0,
+            "specialInstructions": "FREE TEX"
+          },
+          "fare": {
+            "rateSchedule": 1,
+            "isMultiDateRate": 2,
+            "rate": {
+              "amount": 888.69,
+              "currency": "USD"
+            },
+            "rateChangeDuringStay": 2,
+            "rateChangeInfos": [],
+            "creditCardGuarantee": "Unknown"
+          },
+          "overview": "NA",
+          "loyaltyMemberships": [],
+          "notes": "CY-GB\nTEL-44 117 319 9000\nFAX-\nHTS\nHRCOR\nFCGBP\nDR95\nHCC-RT"
+        },
+        {
+          "type": "CruiseFerry",
+          "segmentNumber": 2,
+          "confirmationNumber": "2e1843c6-6276-4110-914a-77a06ee5702a",
+          "startDateTime": "2019-04-15T15:40:00",
+          "endDateTime": "2019-04-15T17:05:00",
+          "status": {
+            "code": "HK",
+            "description": "Booked"
+          },
+          "isPassive": false,
+          "isCancelled": false,
+          "vendor": {
+            "code": "similique",
+            "name": "nec"
+          },
+          "departurePort": {
+            "seaportCode": "euismod"
+          },
+          "arrivalPort": {
+            "seaportCode": "phasellus"
+          },
+          "numberInParty": "7654321",
+          "vessel": {
+            "name": "Test",
+            "cabin": "cabin_string",
+            "linkCode": "LinkCode_"
+          },
+          "fare": {
+            "fare": {
+              "amount": 650.0,
+              "currency": "USD"
+            },
+            "balanceDueDate": "2019-04-15T17:05:00"
+          },
+          "additionalInformation": "Auctor hac etaccusamus leo tortor error leo nisi venenatis saepeeveniet vel.",
+          "notes": "Reiciendis habitasse voluptatibus nonrecusandae fugit inventore."
+        },
+        {
+          "type": "Car",
+          "segmentNumber": 3,
+          "confirmationNumber": "ZEH64024317F1",
+          "startDateTime": "2019-08-30T22:16:57",
+          "endDateTime": "2019-09-04T04:54:49",
+          "status": {
+            "code": "GK",
+            "description": "Booked"
+          },
+          "isPassive": true,
+          "isCancelled": false,
+          "rentalCompany": {
+            "code": "ZE",
+            "name": "Hertz Rent-A-Car",
+            "phone": {}
+          },
+          "pickupLocation": {
+            "address": {
+              "address1": "Hertz Rent a Car ST5\nBRISTOL A/PORT CAR HIRE HALL BS48 3DS\nBristol",
+              "city": {},
+              "region": {},
+              "country": {
+                "code": "GB"
+              },
+              "notes": "BRST50"
+            },
+            "airportCode": "BRS",
+            "pickupSpot": "T50"
+          },
+          "dropoffLocation": {
+            "address": {
+              "address1": "Hertz Rent a Car ST5\nBRISTOL A/PORT CAR HIRE HALL BS48 3DS\nBristol",
+              "city": {},
+              "region": {},
+              "country": {
+                "code": "GB"
+              },
+              "notes": "BRST50"
+            },
+            "airportCode": "BRST50",
+            "dropoffSpot": "T50"
+          },
+          "arrivalFlight": {},
+          "numberOfDays": 1,
+          "numberOfHours": 0,
+          "numberOfCars": 1,
+          "car": {
+            "type": {
+              "description": "Economy Car Manual AC"
+            },
+            "specialEquipment": []
+          },
+          "fare": {
+            "rateType": 1,
+            "rateSchedule": 0,
+            "baseRate": {
+              "amount": 472.79,
+              "currency": "USD"
+            },
+            "estimatedTotalRate": {
+              "amount": 1147.73,
+              "currency": "USD"
+            },
+            "quotedRate": {
+              "amount": 71.84,
+              "currency": "EUR"
+            },
+            "distanceUnitOfMeasure": 0,
+            "corporateDiscountNumber": "404846"
+          },
+          "loyaltyMemberships": []
+        },
+        {
+          "type": "Rail",
+          "segmentNumber": 4,
+          "confirmationNumber": "TROZUP",
+          "startDateTime": "2019-09-20T16:51:44",
+          "endDateTime": "2019-09-24T02:35:25",
+          "status": {
+            "code": "GK",
+            "description": "Booked"
+          },
+          "isPassive": true,
+          "isCancelled": false,
+          "carrier": {
+            "name": "SNCF",
+            "operator": "2C"
+          },
+          "startStation": {
+            "stationCode": "CHARLESDEGAUL",
+            "address": {
+              "address1": "CHARLESDEGAUL  CHARLES DE GAULLE 2 TGVFRMLW",
+              "city": {},
+              "region": {},
+              "country": {},
+              "notes": "CHARLESDEGAUL - CHARLES DE GAULLE 2 TGV-FRMLW"
+            }
+          },
+          "endStation": {
+            "stationCode": "STRASBOURGSTAT",
+            "address": {
+              "address1": "STRASBOURGSTAT  STRASBOURG STATIONFRAEG",
+              "city": {},
+              "region": {},
+              "country": {},
+              "notes": "STRASBOURGSTAT - STRASBOURG STATION-FRAEG"
+            }
+          },
+          "numberInParty": 1,
+          "train": {
+            "trainNumber": "1200",
+            "classOfService": {},
+            "specialInstructions": "SID01-TICKET"
+          },
+          "fare": {
+            "rateQuote": {
+              "amount": 34.0,
+              "currency": "EUR"
+            }
+          },
+          "seatSelections": [
+            {
+              "travelerNumber": "1",
+              "location": "TGE 5479 SEAT 043-COACH 011-CL1"
+            }
+          ],
+          "mealPreferences": [],
+          "calculatedDuration": "110",
+          "numberOfStops": 0,
+          "notes": "0004†RAL†2C†01FEB†4†GK†01††CHARLESDEGAUL††STRASBOURGSTAT†1121ˆCHARLES DE GAULLE 2 TGV-FRMLWˆ1311ˆ01FEBˆSTRASBOURG STATION-FRAEGˆTGE 5479ˆSEAT 043-COACH 011-CL1ˆSID01-TICKETˆTROZUP-ˆˆ"
+        },
+        {
+          "type": "Rail",
+          "segmentNumber": 5,
+          "confirmationNumber": "TROZUP",
+          "startDateTime": "2019-09-11T02:37:11",
+          "endDateTime": "2019-09-14T16:31:25",
+          "status": {
+            "code": "GK",
+            "description": "Booked"
+          },
+          "isPassive": true,
+          "isCancelled": false,
+          "carrier": {
+            "name": "SNCF",
+            "operator": "2C"
+          },
+          "startStation": {
+            "stationCode": "STRASBOURGSTAT",
+            "address": {
+              "address1": "STRASBOURGSTAT  STRASBOURG STATIONFRAEG",
+              "city": {},
+              "region": {},
+              "country": {},
+              "notes": "STRASBOURGSTAT - STRASBOURG STATION-FRAEG"
+            }
+          },
+          "endStation": {
+            "stationCode": "MOLSHEIM",
+            "address": {
+              "address1": "MOLSHEIM  MOLSHEIMFRMOL",
+              "city": {},
+              "region": {},
+              "country": {},
+              "notes": "MOLSHEIM - MOLSHEIM-FRMOL"
+            }
+          },
+          "numberInParty": 1,
+          "train": {
+            "trainNumber": "24686",
+            "classOfService": {},
+            "specialInstructions": "SID02-TICKET"
+          },
+          "fare": {
+            "rateQuote": {
+              "amount": 34.0,
+              "currency": "EUR"
+            }
+          },
+          "seatSelections": [
+            {
+              "travelerNumber": "1",
+              "location": "TER 30886 CL2"
+            }
+          ],
+          "mealPreferences": [],
+          "calculatedDuration": "23",
+          "numberOfStops": 0,
+          "notes": "0005†RAL†2C†01FEB†4†GK†01††STRASBOURGSTAT††MOLSHEIM†1327ˆSTRASBOURG STATION-FRAEGˆ1350ˆ01FEBˆMOLSHEIM-FRMOLˆTER 30886ˆCL2ˆSID02-TICKETˆTROZUP-ˆˆ"
+        },
+        {
+          "type": "Air",
+          "segmentNumber": 6,
+          "confirmationNumber": "QWI8Q2",
+          "startDateTime": "2019-09-16T01:44:02+00:00",
+          "endDateTime": "2019-09-19T21:54:15+01:00",
+          "status": {
+            "code": "HK",
+            "description": "Booked"
+          },
+          "isPassive": false,
+          "isCancelled": false,
+          "departureAirport": {
+            "airport": {
+              "code": "BRS",
+              "name": "Bristol Airport",
+              "address": {
+                "city": {
+                  "name": "Bristol"
+                },
+                "region": {
+                  "code": "EN"
+                },
+                "country": {
+                  "code": "GB",
+                  "name": "United Kingdom"
+                },
+                "coordinates": {
+                  "latitude": "51.386757",
+                  "longitude": "-2.710659"
+                }
+              },
+              "metroArea": {},
+              "isMajorAirport": true
+            }
+          },
+          "arrivalAirport": {
+            "airport": {
+              "code": "CDG",
+              "name": "Charles de Gaulle Airport",
+              "address": {
+                "address1": "95711",
+                "address2": " Roissy Charles de Gaulle",
+                "city": {
+                  "name": "Paris"
+                },
+                "region": {},
+                "country": {
+                  "code": "FR",
+                  "name": "France"
+                },
+                "coordinates": {
+                  "latitude": "49.003197",
+                  "longitude": "2.567023"
+                }
+              },
+              "metroArea": {
+                "code": "PAR",
+                "name": "Paris"
+              },
+              "isMajorAirport": true
+            },
+            "terminal": "AEROGARE 3"
+          },
+          "marketingFlight": {
+            "airlineCode": "BM",
+            "airlineName": "Bayu Indonesia",
+            "flightNumber": "8701"
+          },
+          "operatingFlight": {},
+          "isInternational": true,
+          "ticket": {
+            "isTicketed": true,
+            "ticketNumber": "0832364446562",
+            "isTicketless": false,
+            "isETicketCandidate": true
+          },
+          "seatSelections": [],
+          "mealPreferences": [],
+          "meal": {
+            "hasSpecialMeal": 0
+          },
+          "equipment": {
+            "code": "ER3"
+          },
+          "classOfService": {
+            "code": "W",
+            "description": "Economy"
+          },
+          "inFlightServices": {
+            "code": "10",
+            "description": "Non Smoking"
+          },
+          "flightDistance": 285,
+          "calculatedDuration": "75",
+          "numberOfStops": 0,
+          "isScheduleChange": false,
+          "isFlown": false,
+          "isChangeOfGuage": false,
+          "marriedSegments": [],
+          "connectedSegments": []
+        }
+      ],
+      "fareInfos": [
+        {
+          "segmentNumbers": [
+            "1",
+            "6"
+          ],
+          "fare": {
+            "amount": 195.0,
+            "currency": "EUR"
+          },
+          "estimatedTotalFare": {
+            "amount": 310.77,
+            "currency": "EUR"
+          }
+        },
+        {
+          "segmentNumbers": [
+            "3"
+          ],
+          "fare": {
+            "amount": 1597.84,
+            "currency": "USD"
+          },
+          "estimatedTotalFare": {
+            "amount": 2551.07,
+            "currency": "USD"
+          }
+        },
+        {
+          "segmentNumbers": [
+            "2"
+          ],
+          "fare": {
+            "amount": 962.41,
+            "currency": "USD"
+          },
+          "estimatedTotalFare": {
+            "amount": 962.41,
+            "currency": "USD"
+          }
+        },
+        {
+          "segmentNumbers": [
+            "2"
+          ],
+          "fare": {
+            "amount": 1340.0,
+            "currency": "USD"
+          },
+          "estimatedTotalFare": {
+            "amount": 1340.0,
+            "currency": "USD"
+          }
+        },
+        {
+          "segmentNumbers": [
+            "4"
+          ],
+          "fare": {
+            "amount": 34.0,
+            "currency": "EUR"
+          },
+          "estimatedTotalFare": {
+            "amount": 34.0,
+            "currency": "EUR"
+          }
+        },
+        {
+          "segmentNumbers": [
+            "5"
+          ],
+          "fare": {
+            "amount": 34.0,
+            "currency": "EUR"
+          },
+          "estimatedTotalFare": {
+            "amount": 34.0,
+            "currency": "EUR"
+          }
+        },
+        {
+          "segmentNumbers": [
+            "1"
+          ],
+          "fare": {
+            "amount": 1362.0,
+            "currency": "USD"
+          },
+          "estimatedTotalFare": {
+            "amount": 1362.0,
+            "currency": "USD"
+          }
+        }
+      ]
+    }
+  }
+```
+
++ Response 403
+
+    + Body
+    ```json
+        {
+            code: "403",
+            status: "Forbidden",
+            message: "Access is forbidden: Access to this data is restricted
+        }
+    ```
+    
++ Response 400
+
+    + Body
+    ```json
+        {
+            code: "400",
+            status: "Bad Request",
+            message: "Bad Request: Trip was not found or tripid is in incorrect format"
+        }
+    ```
+
++ Response 404
+
+    + Body
+    ```json
+        {
+            code: "404",
+            status: "Not Found",
+            message: "Not Found: Trip with id '065f1994-ddda-403b-af88-4c90a7e7b930' not found"
+        }
+    ```
+    
++ Response 500
+
+    + Body
+    ```json
+        {
+            code: "500",
+            status: "Internal Server Error",
+            message: "Server Error: Operation Failed"
+        }
+
+## Search Trips [/trips]
+  
+### search_trips [POST]
+Retrieves a list of itineraries that match the requested search criteria.
+
+#### Use case
+
+This endpoint can be used on a trips list page within your travel monitoring application to provide users the ability to filter trips by date, traveler, or booking type (e.g. flight). It can retrieve any booking completed through your BCD booking application, or via BCD rental car, hotel, or flight **book** endpoints. It supports a broad range of search criteria, including search by traveler name or email; search by date, date/time, or date range; search by book date, trip date, or modified date; or search by flight or airport. For example, a search query for “Jane.Smith@bcdtravel.com” in `travelerEmailAddress` with a date range of “2019-10-01 TO 2019-10-31” in `tripDate` used with `hasCar`, `hasHotel` and `hasAir` from “DFW,DAL” in `departureAirportCode` will retrieve a list of all trips for Jane.Smith@bcdtravel.com departing from DFW and DAL booked with a flight, hotel, and rental car during the month of October. The response contains a collection of itineraries (similar to the get_trip_by_id endpoint) that match the specific search criteria.
+
+#### What’s next?
+
+The `tripId` in the response can be used to view a single itinerary from the result set via the **get_trip_by_id** endpoint.
+
+
++ Request
+
+    + Attributes(SearchRequest)
+    
+    + Headers
+    
+            Authorization: Signature <calculated signature>
+            x-api-key: Your _consumer key_.      
+            
+
+    + Body
+    ```json
+{
+    "limit": 15,
+    "offset": 0,
+    "sort": [
+    {
+            "lastModifiedDateTime" : "desc"
+    }
+    ],
+    "filter": {
+        "accountid": "9999999999",
+        "lastModifiedDateTime": "2019-08-28T11:30 TO 2019-08-28T12:00", 
+        "hasAir": true
+    }
+}
+    ```
+    
++ Response 200
+
+    + Attributes(TripsSearchResult)
+        
+    + Body
+```json
+  {
+    "code": 200,
+    "status": "ok",
+    "remainingRecords": 129,
+    "result": [
+      {
+        "identification": {
+          "id": "3404f4ea-7c13-453c-9b4b-70c923577ea5",
+          "sourceId": "70e08fb4-2346-4912-8ea7-6abf1082caef",
+          "recordLocator": "NSTEZH",
+          "gds": "SABRE",
+          "globalCustomerNumber": "2948",
+          "accountId": "9063004",
+          "accountCountryCode": "US",
+          "customerNumber": "9063004",
+          "creationOfficeId": "H2AH",
+          "agentSignature": "AWS",
+          "pseudoCityCode": "H2AH",
+          "dataType": "BCD",
+          "dataProvider": "US"
+        },
+        "tripDetails": {
+          "bookingDateTime": "2018-01-22T07:05:00Z",
+          "ticketedDateTime": "2018-01-24T00:00:00Z",
+          "sourceModifiedDateTime": "2019-08-28T11:53:11Z",
+          "lastModifiedDateTime": "2019-08-28T11:57:39Z"
+        },
+        "travelers": [
+          {
+            "travelerNumber": "1",
+            "name": {
+              "firstName": "Test",
+              "lastName": "User"
+            },
+            "nameInGds": "User/Test",
+            "loyaltyMemberships": [],
+            "seatPreferences": [
+              {
+                "locationCode": "C",
+                "locationText": "Center",
+                "notes": "COMPLEAT-SEAT PREFS/C"
+              }
+            ]
+          }
+        ],
+        "contacts": {
+          "phoneNumbers": [
+            {
+              "number": "188.555.4667 x5228",
+              "type": "Business"
+            },
+            {
+                "number": "670-555-5388",
+                "type": "Cellular"
+            },
+            {
+                "number": "(420)555-4364",
+                "type": "Home"
+            },
+            {
+                "number": "624-555-5076",
+                "type": "Agent"
+            }
+          ],
+          "emailAddresses": [
+            {
+              "emailAddress": "USER_TEST@MYCOMPANY.COM",
+              "type": "To",
+              "isPrimary": true
+            },
+            {
+              "emailAddress": "UTEST@YAHOO.COM",
+              "type": "Cc"
+            },
+            {
+              "emailAddress": "JOHN_DOE@MYCOMPANY.COM",
+              "type": "Manager"
+            }
+          ]
+        },
+        "segments": [
+          {
+            "type": "Air",
+            "segmentNumber": 1,
+            "confirmationNumber": "QWI0Q2",
+            "startDateTime": "2019-09-05T04:45:47+01:00",
+            "endDateTime": "2019-09-05T17:57:53+00:00",
+            "status": {
+              "code": "HK",
+              "description": "Booked"
+            },
+            "isPassive": false,
+            "isCancelled": false,
+            "departureAirport": {
+              "airport": {
+                "code": "CDG",
+                "name": "Charles de Gaulle Airport",
+                "address": {
+                  "address1": "95711",
+                  "address2": " Roissy Charles de Gaulle",
+                  "city": {
+                    "name": "Paris"
+                  },
+                  "region": {},
+                  "country": {
+                    "code": "FR",
+                    "name": "France"
+                  },
+                  "coordinates": {
+                    "latitude": "49.003197",
+                    "longitude": "2.567023"
+                  }
+                },
+                "metroArea": {
+                  "code": "PAR",
+                  "name": "Paris"
+                },
+                "isMajorAirport": true
+              },
+              "terminal": "AEROGARE 3"
+            },
+            "arrivalAirport": {
+              "airport": {
+                "code": "BRS",
+                "name": "Bristol Airport",
+                "address": {
+                  "city": {
+                    "name": "Bristol"
+                  },
+                  "region": {
+                    "code": "EN"
+                  },
+                  "country": {
+                    "code": "GB",
+                    "name": "United Kingdom"
+                  },
+                  "coordinates": {
+                    "latitude": "51.386757",
+                    "longitude": "-2.710659"
+                  }
+                },
+                "metroArea": {},
+                "isMajorAirport": true
+              }
+            },
+            "marketingFlight": {
+              "airlineCode": "BM",
+              "airlineName": "Bayu Indonesia",
+              "flightNumber": "2347"
+            },
+            "operatingFlight": {},
+            "isInternational": true,
+            "ticket": {
+              "isTicketed": true,
+              "ticketNumber": "1587337052275",
+              "isTicketless": false,
+              "isETicketCandidate": true
+            },
+            "seatSelections": [],
+            "mealPreferences": [],
+            "meal": {
+              "hasSpecialMeal": 0
+            },
+            "equipment": {
+              "code": "ER4"
+            },
+            "classOfService": {
+              "code": "Q",
+              "description": "Economy"
+            },
+            "inFlightServices": {
+              "code": "10",
+              "description": "Non Smoking"
+            },
+            "flightDistance": 285,
+            "calculatedDuration": "75",
+            "numberOfStops": 0,
+            "isScheduleChange": false,
+            "isFlown": false,
+            "isChangeOfGuage": false,
+            "marriedSegments": [],
+            "connectedSegments": []
+          },
+          {
+            "type": "Bus",
+            "segmentNumber": 1,
+            "confirmationNumber": "d96c12e1-7e73-42ac-918e-0cb4314f362b",
+            "startDateTime": "2019-04-15T15:40:00",
+            "endDateTime": "2019-04-15T17:05:00",
+            "status": {
+              "code": "HK",
+              "description": "Booked"
+            },
+            "isPassive": false,
+            "isCancelled": false,
+            "vendor": {
+              "name": "curabitur"
+            },
+            "departureStation": {
+              "address": {
+                "city": {
+                  "code": "iure"
+                }
+              }
+            },
+            "arrivalStation": {
+              "address": {
+                "city": {
+                  "code": "similique"
+                }
+              }
+            },
+            "numberInParty": "7654321",
+            "fare": {
+              "quotedRate": {
+                "amount": 1841.0,
+                "currency": "USD"
+              },
+              "penaltyRate": {
+                "amount": 236.0,
+                "currency": "USD"
+              },
+              "netRate": {
+                "amount": 681.0,
+                "currency": "USD"
+              }
+            },
+            "notes": "MSP"
+          },
+          {
+            "type": "Hotel",
+            "segmentNumber": 2,
+            "confirmationNumber": "LDVGLQ-            ",
+            "startDateTime": "2019-09-01T12:11:35",
+            "endDateTime": "2019-09-04T06:21:48",
+            "status": {
+              "code": "GK",
+              "description": "Booked"
+            },
+            "isPassive": true,
+            "isCancelled": false,
+            "property": {
+              "name": "IBIS BRISTOL CENTRE",
+              "hotelChain": {
+                "code": "HN"
+              },
+              "phone": {},
+              "address": {
+                "city": {
+                  "code": "BRS"
+                },
+                "region": {},
+                "country": {},
+                "notes": "EXPLORE LANE FOR CAR PARK USE BS1 5LL AVON B"
+              },
+              "airportCode": "BRS"
+            },
+            "numberOfNights": 1,
+            "numberOfRooms": 1,
+            "room": {
+              "type": {},
+              "numberOfGuests": 0,
+              "specialInstructions": "FREE TEX"
+            },
+            "fare": {
+              "rateSchedule": 1,
+              "isMultiDateRate": 2,
+              "rate": {
+                "amount": 888.69,
+                "currency": "USD"
+              },
+              "rateChangeDuringStay": 2,
+              "rateChangeInfos": [],
+              "creditCardGuarantee": "Unknown"
+            },
+            "overview": "NA",
+            "loyaltyMemberships": [],
+            "notes": "CY-GB\nTEL-44 117 319 9000\nFAX-\nHTS\nHRCOR\nFCGBP\nDR95\nHCC-RT"
+          },
+          {
+            "type": "CruiseFerry",
+            "segmentNumber": 2,
+            "confirmationNumber": "2e1843c6-6276-4110-914a-77a06ee5702a",
+            "startDateTime": "2019-04-15T15:40:00",
+            "endDateTime": "2019-04-15T17:05:00",
+            "status": {
+              "code": "HK",
+              "description": "Booked"
+            },
+            "isPassive": false,
+            "isCancelled": false,
+            "vendor": {
+              "code": "similique",
+              "name": "nec"
+            },
+            "departurePort": {
+              "seaportCode": "euismod"
+            },
+            "arrivalPort": {
+              "seaportCode": "phasellus"
+            },
+            "numberInParty": "7654321",
+            "vessel": {
+              "name": "Test",
+              "cabin": "cabin_string",
+              "linkCode": "LinkCode_"
+            },
+            "fare": {
+              "fare": {
+                "amount": 650.0,
+                "currency": "USD"
+              },
+              "balanceDueDate": "2019-04-15T17:05:00"
+            },
+            "additionalInformation": "Auctor hac etaccusamus leo tortor error leo nisi venenatis saepeeveniet vel.",
+            "notes": "Reiciendis habitasse voluptatibus nonrecusandae fugit inventore."
+          },
+          {
+            "type": "Car",
+            "segmentNumber": 3,
+            "confirmationNumber": "ZEH64024317F1",
+            "startDateTime": "2019-08-30T22:16:57",
+            "endDateTime": "2019-09-04T04:54:49",
+            "status": {
+              "code": "GK",
+              "description": "Booked"
+            },
+            "isPassive": true,
+            "isCancelled": false,
+            "rentalCompany": {
+              "code": "ZE",
+              "name": "Hertz Rent-A-Car",
+              "phone": {}
+            },
+            "pickupLocation": {
+              "address": {
+                "address1": "Hertz Rent a Car ST5\nBRISTOL A/PORT CAR HIRE HALL BS48 3DS\nBristol",
+                "city": {},
+                "region": {},
+                "country": {
+                  "code": "GB"
+                },
+                "notes": "BRST50"
+              },
+              "airportCode": "BRS",
+              "pickupSpot": "T50"
+            },
+            "dropoffLocation": {
+              "address": {
+                "address1": "Hertz Rent a Car ST5\nBRISTOL A/PORT CAR HIRE HALL BS48 3DS\nBristol",
+                "city": {},
+                "region": {},
+                "country": {
+                  "code": "GB"
+                },
+                "notes": "BRST50"
+              },
+              "airportCode": "BRST50",
+              "dropoffSpot": "T50"
+            },
+            "arrivalFlight": {},
+            "numberOfDays": 1,
+            "numberOfHours": 0,
+            "numberOfCars": 1,
+            "car": {
+              "type": {
+                "description": "Economy Car Manual AC"
+              },
+              "specialEquipment": []
+            },
+            "fare": {
+              "rateType": 1,
+              "rateSchedule": 0,
+              "baseRate": {
+                "amount": 472.79,
+                "currency": "USD"
+              },
+              "estimatedTotalRate": {
+                "amount": 1147.73,
+                "currency": "USD"
+              },
+              "quotedRate": {
+                "amount": 71.84,
+                "currency": "EUR"
+              },
+              "distanceUnitOfMeasure": 0,
+              "corporateDiscountNumber": "404846"
+            },
+            "loyaltyMemberships": []
+          },
+          {
+            "type": "Rail",
+            "segmentNumber": 4,
+            "confirmationNumber": "TROZUP",
+            "startDateTime": "2019-09-20T16:51:44",
+            "endDateTime": "2019-09-24T02:35:25",
+            "status": {
+              "code": "GK",
+              "description": "Booked"
+            },
+            "isPassive": true,
+            "isCancelled": false,
+            "carrier": {
+              "name": "SNCF",
+              "operator": "2C"
+            },
+            "startStation": {
+              "stationCode": "CHARLESDEGAUL",
+              "address": {
+                "address1": "CHARLESDEGAUL  CHARLES DE GAULLE 2 TGVFRMLW",
+                "city": {},
+                "region": {},
+                "country": {},
+                "notes": "CHARLESDEGAUL - CHARLES DE GAULLE 2 TGV-FRMLW"
+              }
+            },
+            "endStation": {
+              "stationCode": "STRASBOURGSTAT",
+              "address": {
+                "address1": "STRASBOURGSTAT  STRASBOURG STATIONFRAEG",
+                "city": {},
+                "region": {},
+                "country": {},
+                "notes": "STRASBOURGSTAT - STRASBOURG STATION-FRAEG"
+              }
+            },
+            "numberInParty": 1,
+            "train": {
+              "trainNumber": "1200",
+              "classOfService": {},
+              "specialInstructions": "SID01-TICKET"
+            },
+            "fare": {
+              "rateQuote": {
+                "amount": 34.0,
+                "currency": "EUR"
+              }
+            },
+            "seatSelections": [
+              {
+                "travelerNumber": "1",
+                "location": "TGE 5479 SEAT 043-COACH 011-CL1"
+              }
+            ],
+            "mealPreferences": [],
+            "calculatedDuration": "110",
+            "numberOfStops": 0,
+            "notes": "0004†RAL†2C†01FEB†4†GK†01††CHARLESDEGAUL††STRASBOURGSTAT†1121ˆCHARLES DE GAULLE 2 TGV-FRMLWˆ1311ˆ01FEBˆSTRASBOURG STATION-FRAEGˆTGE 5479ˆSEAT 043-COACH 011-CL1ˆSID01-TICKETˆTROZUP-ˆˆ"
+          },
+          {
+            "type": "Rail",
+            "segmentNumber": 5,
+            "confirmationNumber": "TROZUP",
+            "startDateTime": "2019-09-11T02:37:11",
+            "endDateTime": "2019-09-14T16:31:25",
+            "status": {
+              "code": "GK",
+              "description": "Booked"
+            },
+            "isPassive": true,
+            "isCancelled": false,
+            "carrier": {
+              "name": "SNCF",
+              "operator": "2C"
+            },
+            "startStation": {
+              "stationCode": "STRASBOURGSTAT",
+              "address": {
+                "address1": "STRASBOURGSTAT  STRASBOURG STATIONFRAEG",
+                "city": {},
+                "region": {},
+                "country": {},
+                "notes": "STRASBOURGSTAT - STRASBOURG STATION-FRAEG"
+              }
+            },
+            "endStation": {
+              "stationCode": "MOLSHEIM",
+              "address": {
+                "address1": "MOLSHEIM  MOLSHEIMFRMOL",
+                "city": {},
+                "region": {},
+                "country": {},
+                "notes": "MOLSHEIM - MOLSHEIM-FRMOL"
+              }
+            },
+            "numberInParty": 1,
+            "train": {
+              "trainNumber": "24686",
+              "classOfService": {},
+              "specialInstructions": "SID02-TICKET"
+            },
+            "fare": {
+              "rateQuote": {
+                "amount": 34.0,
+                "currency": "EUR"
+              }
+            },
+            "seatSelections": [
+              {
+                "travelerNumber": "1",
+                "location": "TER 30886 CL2"
+              }
+            ],
+            "mealPreferences": [],
+            "calculatedDuration": "23",
+            "numberOfStops": 0,
+            "notes": "0005†RAL†2C†01FEB†4†GK†01††STRASBOURGSTAT††MOLSHEIM†1327ˆSTRASBOURG STATION-FRAEGˆ1350ˆ01FEBˆMOLSHEIM-FRMOLˆTER 30886ˆCL2ˆSID02-TICKETˆTROZUP-ˆˆ"
+          },
+          {
+            "type": "Air",
+            "segmentNumber": 6,
+            "confirmationNumber": "QWI8Q2",
+            "startDateTime": "2019-09-16T01:44:02+00:00",
+            "endDateTime": "2019-09-19T21:54:15+01:00",
+            "status": {
+              "code": "HK",
+              "description": "Booked"
+            },
+            "isPassive": false,
+            "isCancelled": false,
+            "departureAirport": {
+              "airport": {
+                "code": "BRS",
+                "name": "Bristol Airport",
+                "address": {
+                  "city": {
+                    "name": "Bristol"
+                  },
+                  "region": {
+                    "code": "EN"
+                  },
+                  "country": {
+                    "code": "GB",
+                    "name": "United Kingdom"
+                  },
+                  "coordinates": {
+                    "latitude": "51.386757",
+                    "longitude": "-2.710659"
+                  }
+                },
+                "metroArea": {},
+                "isMajorAirport": true
+              }
+            },
+            "arrivalAirport": {
+              "airport": {
+                "code": "CDG",
+                "name": "Charles de Gaulle Airport",
+                "address": {
+                  "address1": "95711",
+                  "address2": " Roissy Charles de Gaulle",
+                  "city": {
+                    "name": "Paris"
+                  },
+                  "region": {},
+                  "country": {
+                    "code": "FR",
+                    "name": "France"
+                  },
+                  "coordinates": {
+                    "latitude": "49.003197",
+                    "longitude": "2.567023"
+                  }
+                },
+                "metroArea": {
+                  "code": "PAR",
+                  "name": "Paris"
+                },
+                "isMajorAirport": true
+              },
+              "terminal": "AEROGARE 3"
+            },
+            "marketingFlight": {
+              "airlineCode": "BM",
+              "airlineName": "Bayu Indonesia",
+              "flightNumber": "8701"
+            },
+            "operatingFlight": {},
+            "isInternational": true,
+            "ticket": {
+              "isTicketed": true,
+              "ticketNumber": "0832364446562",
+              "isTicketless": false,
+              "isETicketCandidate": true
+            },
+            "seatSelections": [],
+            "mealPreferences": [],
+            "meal": {
+              "hasSpecialMeal": 0
+            },
+            "equipment": {
+              "code": "ER3"
+            },
+            "classOfService": {
+              "code": "W",
+              "description": "Economy"
+            },
+            "inFlightServices": {
+              "code": "10",
+              "description": "Non Smoking"
+            },
+            "flightDistance": 285,
+            "calculatedDuration": "75",
+            "numberOfStops": 0,
+            "isScheduleChange": false,
+            "isFlown": false,
+            "isChangeOfGuage": false,
+            "marriedSegments": [],
+            "connectedSegments": []
+          }
+        ],
+        "fareInfos": [
+          {
+            "segmentNumbers": [
+              "1",
+              "6"
+            ],
+            "fare": {
+              "amount": 195.0,
+              "currency": "EUR"
+            },
+            "estimatedTotalFare": {
+              "amount": 310.77,
+              "currency": "EUR"
+            }
+          },
+          {
+            "segmentNumbers": [
+              "3"
+            ],
+            "fare": {
+              "amount": 1597.84,
+              "currency": "USD"
+            },
+            "estimatedTotalFare": {
+              "amount": 2551.07,
+              "currency": "USD"
+            }
+          },
+          {
+            "segmentNumbers": [
+              "2"
+            ],
+            "fare": {
+              "amount": 962.41,
+              "currency": "USD"
+            },
+            "estimatedTotalFare": {
+              "amount": 962.41,
+              "currency": "USD"
+            }
+          },
+          {
+            "segmentNumbers": [
+              "2"
+            ],
+            "fare": {
+              "amount": 1340.0,
+              "currency": "USD"
+            },
+            "estimatedTotalFare": {
+              "amount": 1340.0,
+              "currency": "USD"
+            }
+          },
+          {
+            "segmentNumbers": [
+              "4"
+            ],
+            "fare": {
+              "amount": 34.0,
+              "currency": "EUR"
+            },
+            "estimatedTotalFare": {
+              "amount": 34.0,
+              "currency": "EUR"
+            }
+          },
+          {
+            "segmentNumbers": [
+              "5"
+            ],
+            "fare": {
+              "amount": 34.0,
+              "currency": "EUR"
+            },
+            "estimatedTotalFare": {
+              "amount": 34.0,
+              "currency": "EUR"
+            }
+          },
+          {
+            "segmentNumbers": [
+              "1"
+            ],
+            "fare": {
+              "amount": 1362.0,
+              "currency": "USD"
+            },
+            "estimatedTotalFare": {
+              "amount": 1362.0,
+              "currency": "USD"
+            }
+          }
+        ]
+      }
+    ]
+  }
+```
+
++ Response 403
+
+    + Body
+    ```json
+        {
+            code: "403",
+            status: "Forbidden",
+            message: "Access is forbidden: Query contains restricted segments
+        }
+    ```
+    
++ Response 400
+
+    + Body
+    ```json
+        {
+            code: "400",
+            status: "Bad Request",
+            message: "Bad Request: Invalid Search Query"
+        }
+    ```
+    
++ Response 500
+
+    + Body
+    ```json
+        {
+            code: "500",
+            status: "Internal Server Error",
+            message: "Server Error: Operation Failed"
+        }
+    ```
+    
+# Data Structures
+
+## TripObject (object)
+### Properties
++ identification
+    - id: `065f1994-ddda-403b-af88-4c90a7e7b930` (string, required) - The BCD specific identifier of the trip record. Supports any GDS or non-GDS booked flight, rental car, hotel, rail, cruise/ferry, tour, or bus as the identifier.
+    - sourceId: `70e08fb4-2346-4912-8ea7-6abf1082caef` (string, required) - The alpha numeric trip identifier provided by the travel/source provider (e.g. provided by Air B&B).
+    - recordLocator: `NSTEZH` (string, required) - The GDS passenger name record (PNR) identifier. 
+    - gds: `SABRE` (string, required) - The name of the global distribution system (GDS) where the passenger name record is recorded.
+    - globalCustomerNumber: `2939393` (string, required) - The global BCD specific number of the corporate account (in 'accountId').
+    - accountId: `999999` (string, required) - The BCD specific identifier for the regional corporate office that owns the record (aka SMID).
+    - accountCountryCode: `SABRE` (string) - The country code for the regional corporate office that owns the record.
+    - customerNumber: `9063004` (string) - The back office customer number associated with the customer name (in customerName).
+    - customerName: `Pepsi` (string) - The name associated with the customer number in 'customerNumber'.
+    - creationOfficeId: `H2AH` (string) - The name of the office belonging to the customer name in 'customerName' and number in 'customerNumber' where the booking originated.
+    - agentSignature: `AWS` (string) - The identifier of the booking/travel agent that created the booking in the creation office in 'creationOffice'.
+    - pseudoCityCode: `H2AH` (string) - The 3-4 character alphanumeric identifier used to identify the booking/travel agent in the GDS.
+    - dataType: `BCD` (string, required) - The original data type provided for the booking.
+    - dataProvider: `US` (string) - The company, system, or application providing the booking data.    
+   
++ tripDetails
+    - bookingDateTime: `2020-10-22T07:05:00Z` (string) - The ISO 8601 date/time when the booking was created.
+    - ticketedDateTime: `2020-10-22T07:05:00Z` (string) - The ISO 8601 date/time when the booking was ticketed.
+    - sourceModifiedDateTime: `2020-10-22T07:05:00Z` (string) - The ISO 8601 date/time when the booking was last modified at the source.
+    - lastModifiedDateTime: `2020-10-25T07:05:00Z` (string) - The ISO 8601 date/time when the booking was last modified.
+    - flightType: `oneWay` (string) - Indicates whether the flight is one-way (in 'oneWay'), round-trip (in 'roundTrip'), or open-jaw (in 'openJaw') flight segment types. 
+    - isOnlineBooking: `true` (boolean) - Indicates whether the booking took place online.
+    - isCancelled: `true` (boolean) - Indicates whether the booking has been cancelled.
+    - itineraryRemarks (array[string]) - A list of descriptive remarks associated to the travel segment.
+
++ travelers (array) - Contains information related to the traveler(s) for the reservation. Includes traveler number and name, loyalty memberships and seat preferences.
+    - (object)
+        - travelerNumber: `1` (number) - The number assigned to the traveler in the passenger name record. For example, if two travelers belong to the same passenger name record, one traveler will be assigned as ’1’ and the other traveler will be assigned as ’2’.
+        - name (object) - Contains information related to the traveler name for the reservation. Includes traveler name in our systems and in the GDS.
+            - firstName: `Jane` (string) - The first name of the traveler.
+            - middleName: `Miller` (string) - The middle name of the traveler.
+            - lastName: `Smith` (string) - The last name of the traveler.
+        - nameInGds: `Smith/Jane Miller` (string) - The name of the traveler as specified in the passenger name record. 
+        - loyaltyMemberships (array) - Contains information related to the Frequent Traveler Program(s) to be applied to the rate. This entitles the customer the opportunity to earn miles or points with company partners including airlines, hotels and other select companies. Surcharges may apply. Returns each of the loyalty programs used in the traveler reservation. Includes supplier type, supplier name, program name, and member number.
+            - (object)
+                - loyaltyMembership (LoyaltyMembership) - Contains information related to the loyalty program membership of the traveler. Includes travel supplier, loyalty program and member information.
+        - seatPreferences (array) - Contains information related to the seat preference(s) of the traveler. Does not contain the actual seat booked for the reservation. 
+            - (object)
+                - seatPreference (SeatPreference) 
+                     
++ contacts - Contains contact information related to the travelers referenced in the reservation. Returns contact information for each entry. Includes telephone and email address information.
+    - phoneNumbers (array) - Contains each telephone number associated to the traveler. Includes telephone number and type for each entry.
+        - (object)
+            - phone (Phone) - Contains the telephone number of the traveler. 
+    - emailAddresses (array) - Contains the email address information of the traveler. Includes email address, type, and primary email indicator.
+        - (object)
+            - email (Email) - Contains the email address of the traveler.
+                 
++ segments (array)
+    - (object)
+        - segment[type='Air'] (object) - Contains information related to the flight reservation of the traveler. Includes confirmation, airport origin/destination, flight details, and all other information available.
+            - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record.
+            - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The airline confirmation number for the booking.
+            - startDateTime (string) - The ISO 8601 date/time of the flight departure.
+            - endDateTime (string) - The ISO 8601 date/time of the flight arrival.
+            - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
+            - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
+            - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
+            - departureAirport (Flight) - Contains information related to the departure airport in the reservation. If one or more stop-over flights exist between departure and final destination, stop-over flight segments are returned in stopOverCityList. Includes airport and terminal information.
+                - address (Address) -  Contains departure airport street address, city, region, country, notes and geocoordinates. 
+            - arrivalAirport (Flight) - Contains information related to the arrival airport in the reservation. If one or more stop-over flights exist between departure and final destination, stop-over flight segments are returned in stopOverCityList. Includes airport and terminal information.
+                - address (Address) - Contains arrival airport street address, city, region, country, notes and geocoordinates.  
+            - marketingFlight (Flight) - Contains marketing carrier information for the flight segment as indicated in the passenger name record. Returns multiple airlines if a codeshare agreement exists between an operating and marketing airline. An operating airline operates a flight, whereas, a marketing airline generally uses its airline identification code for the flight segment. Includes airline code, name, and flight number.
+            - operatingFlight (Flight) - Contains information related to the operating carrier for the flight segment as indicated in the passenger name record. Returns multiple airlines if a codeshare agreement exists between an operating and marketing airline. An operating airline operates a flight, whereas, a marketing airline generally uses its airline identification code for the flight segment. Includes airline code, name, and flight number.
+            - isInternational: `true` (boolean) - Indicates whether the travel segment has a start and end location in different countries.
+            - ticket (FlightTicket) - Contains information related to ticketing of the flight. Includes ticketing/ticketless indicators and ticketing number.
+            - seatSelections (array) - Contains the seat preference of the traveler for each flight segment in the reservation. 
+                - (object)
+                    - seatSelection (SeatSelection) - Contains the seat location information for the flight segment. Includes traveler number, seat location, and additional information from the traveler of their preference.
+            - mealPreferences (array) - Contains information related to the meal preference for each flight segment in the reservation. For actual meal provided on the flight segment, view the ‘meal’ object.
+                - (object)
+                    - mealPreference (MealPreference) - Contains the meal preference for the flight segment. Includes traveler number, meal preference code, and additional information from the traveler of their preference.
+            - meal (object) - Contains information related to the meal provided on the flight segment. Includes special meal requests by the traveler. For example, if a special meal (as requested by the traveler) code of AVML was specified then the description will be Asian Vegetarian Meal.
+                - code: `AVML` (string) - A code that identifies the meal provided on the flight segment.
+                - description: `Asian Vegetarian Meal` (string) - A text description of the meal provided on the flight segment.
+                - hasSpecialMeal (enum[string]) - Indicates whether a special meal is available for purchase on the flight segment. If ’1’ is returned, then  If ’2’ is returned, then  If ’0’ is returned, then .
+                    + Sample: 0
+                    + Members
+                        + 0 - A special meal is not available for purchase.
+                        + 1 - A special meal is available for purchase.
+                        + 2 - The special meal status is unknown.
+                - specialMealStatus (string) - Indicates the status of the special meal request of the traveler.
+            - equipment (object) - Contains information related to the aircraft equipment for the flight. An equipment code describes the communication, navigation, approach aids, and surveillance transponder equipment on board an aircraft. Includes aircraft equipment code and description.
+                - code (string) - The 3-character IATA aircraft equipment code.
+                - description (string) - A text description of the aircraft equipment code. Aircraft equipment text descriptions often contain the name and model that correspond to the aircraft equipment code.
+            - classOfService (object) - Contains information related to the airline class of service reserved by the traveler for the flight. Includes class code and description.
+                - code (string) - The fare code for the airline class of service.
+                - description: `Premium Economy` (string) - A text description of the fare code for the airline class of service.
+            - inFlightServices (enum[number]) - Contains information related to the in-flight services available on the flight.
+                + Sample: 2
+                + Members
+                    + 1 - Unknown
+                    + 2 - Movie
+                    + 3 - Telephone
+                    + 4 - Telex
+                    + 5 - AudioProgramming
+                    + 6 - Television
+                    + 7 - ResvBookingService
+                    + 8 - DutyFreeSales
+                    + 9 - Smoking
+                    + 10 - NonSmoking
+                    + 11 - ShortFeatureVideo
+                    + 12 - NoDutyFree
+                    + 13 - InSeatPowerSource
+                    + 14 - InternetAccess
+            - flightDistance: `976` (string) - The distance, in miles, of the flight segment.
+            - calculatedDuration: `237` (string) - The duration, in minutes, of the flight segment.
+            - numberOfStops: `2` (number) - The number of stops the flight will make before it reaches the traveler's destination.
+            - stopCityList (array) - Contains stop-over flight segment information as indicated in the passenger name record. Returned only if the flight contains one or more flight segments (i.e. “stop-overs”) from origin to destination. Returns each stop-over flight segment. 
+                - (object)
+                    - arrivalDateTime (string) - The ISO 8601 date/time when the flight segment will arrive.
+                    - departureDateTime (string) - The ISO 8601 date/time when the flight segment will depart.
+                    - airportCode (string) - The 3-character IATA airport code.
+            - isScheduleChange: `false` (boolean) - Indicates whether the original flight schedule has changed.
+            - isFlown: `false` (boolean) - Indicates whether the flight segment has been completed.
+            - isChangeOfGuage: `true` (boolean) - Indicates there will be a change of aircraft for the same flight number. For example, if the traveler must change aircraft for the same flight number, the value will be returned as ‘true.’
+            - marriedSegments (array) - Contains married flight segment information. Returns information for each married segment only if the flight is shared between two or more airlines and priced/ticketed as a single flight. Includes flight segment number.
+                - segmentNumber: `4` (string) - The number used to identify the travel segment in the passenger name record.
+            - connectedSegments (array) - Contains connected flight segment information. A connected segment is a flight that requires a passenger to change planes at an intermediate airport between the departure and the final destination airport. Returns information for each connected segment only if the flight has one or more connected flight segments (i.e. “stop-over”) from origin to destination. Includes flight segment number.
+                - segmentNumber: `4` (string) - The number used to identify the travel segment in the passenger name record.
+            - notes (string) - Any additional notes for the reservation.
+            - segmentRemarks (array[string]) - A text description of remarks associated to the travel segment. If multiple remarks exist, then multiple strings will be returned.
+            
+        - segment[type='Car'] (object) - Contains all information related to the rental car reservation of the traveler. Includes confirmation, pick-up/drop-off, rental car type, and all other information available.
+            - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record.
+            - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The rental car confirmation number for the booking.
+            - startDateTime (string) - The ISO 8601 date/time of the rental car pick-up.
+            - endDateTime (string) - The ISO 8601 date/time of the rental car drop-off.
+            - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
+            - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
+            - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
+            - reservationName (string) - The name of the traveler for the reservation. 
+            - rentalCompany (object) - Contains information related to the rental car company for the traveler reservation. Includes rental car company code, name, and phone number.
+                - code (string) - The rental car company code.
+                - name (string) - The name of the rental car company. 
+                - phone: `770-330-9303` (string) - The telephone number.
+            - pickupLocation (object) - Contains information related to the pick-up location of the rental car. Includes address and nearest airport.
+                - address (NonGeoCoordinatesAddress) - Contains pick-up location street address, city, region, country and notes.
+                - pickupSpot: `T01*TERMINAL BUILDING` (string) - The pick-up location of the rental car at the airport terminal.
+                - airportCode: `DFW` (string) - The 3-character IATA airport code of the nearest airport.
+            - dropoffLocation (object) - Contains information related to the drop-off location of the rental car. Includes address and nearest airport.
+                - address (NonGeoCoordinatesAddress) - Contains drop-off location street address, city, region, country and notes.
+                - dropoffSpot: `T01*TERMINAL BUILDING` (string) - The drop-off location of the rental car at the airport terminal.
+                - airportCode: `DFW` (string) - The 3-character IATA airport code of the nearest airport.
+            - arrivalFlight (Flight) - Contains information about the arrival flight of the traveler. Includes airline name, code, and flight number.
+            - isInternational: `true` (boolean) - Indicates whether the travel segment has a start and end location in different countries.
+            - numberOfDays: `2` (number) - The number of days of the rental car reservation. Reservation hours less than 24 hours/1 day are listed in numberOfHours.
+            - numberOfHours: `18` (number) - The number of hours, in addition to days,  of the rental car reservation.
+            - numberOfCars: `1` (number) - The number of rental cars for the reservation.
+            - car (object) - Contains information about the rental car. Returns multiple objects if more than one rental car for the reservation. Includes rental car type, description, special equipment and instructions.
+                - type (object) - Contains information about the rental car type. Includes rental car code and description. 
+                    - code (string) - The code used to identify the type of rental car.
+                    - description (string) - A text description of the rental car type.
+                - specialEquipment (array[string]) - A list of the special equipment for the rental car. For example, infant child seat.  If multiple types of special equipment exist in the reservation, then multiple strings will be returned.
+                - specialInstructions (string) - Special instructions for the rental car. For example, to gain entry to the rental car.
+            - fare (object) - Contains information related to the rental rate for the reservation. ACRISS (Association of Car Rental Industry Systems Standards) developed a car rental class code system used to identify the type of rental car and class of vehicle. Includes rate code, type, and payment schedule.
+                - rateCode (string) - The rental car rate (a.k.a. ACRISS) code.
+                - rateType (enum[number]) - The type of rental car rate.
+                    + Sample: 3
+                    + Members
+                        + 1 - Unknown
+                        + 2 - Association 
+                        + 3 - Business Standard
+                        + 4 - Corporate 
+                        + 5 - Government
+                        + 6 - Industry
+                        + 7 - Package
+                        + 8 - Promotional
+                        + 9 - Credential 
+                        + 10 - Consortium
+                        + 11 - Convention                    
+                - rateSchedule (enum[string]) - The rate payment schedule. 
+                    + Sample: 2
+                    + Members
+                        + 1 - Unknown 
+                        + 2 - Daily 
+                        + 3 - Weekly 
+                        + 4 - Weekend
+                        + 5 - Hourly 
+                        + 6 - Monthly
+                        + 7 - Package
+                        + 8 - Duration of Hire
+                - baseRate (Fare) - Contains information related to the daily base rental rate. Based on the rate code (in rateCode). Excludes charges assessed in connection with the rental, such as taxes, surcharges, common facilities charges, drop charges, or charges for optional products or services. Includes amount, currency, and description.
+                - estimatedTotalFare (Fare) - Contains information related to the estimated total rate cost, including taxes and other mandatory governmental charges (in totalMandatoryCharges), and excluding special equipment costs. Includes amount, currency, and description.
+                - totalMandatoryCharges (Fare) - Contains information related to the mandatory charges that apply to the estimated total rental rate. Mandatory charges include additional base rental rate costs, such as governmentally imposed charges and facility fees. Includes amount, currency, and description.
+                - agentEnteredRate (Fare) - The total rental rate entered by the travel agent. Includes amount, currency, and description.
+                - extraDayFee (Fare) - The daily late return fee. This fee occurs when a rental car is returned a day past the original reservation end-time (at the time of booking). The driver is assessed a fee as well as an hourly or daily rate for the extra rental time. Includes amount, currency, and description.
+                - extraHourFee (Fare) - The hourly late return fee. This rate occurs when a rental car is returned past the grace period of the reservation end-time. The driver is assessed a fee as well as an hourly or daily rate for the extra rental time. Includes amount, currency, and description.
+                - mileCharge (Fare) - The cost per mile if the free mileage cap is exceeded. This cost occurs when renting a car that does not have unlimited mileage. The rental car company will have a mileage cap on miles driven per day or per rental period. Includes amount, currency, and description.
+                - guaranteedRate (Fare) - The daily rental rate the traveler is guaranteed to pay at the rental counter. Includes amount, currency, and description.
+                - quotedRated (Fare) - The daily rental rate quote the traveler can expect (but is not guaranteed) to pay at the rental counter. For guaranteed rate, see ‘guaranteedRate.’ Includes amount, currency, and description.
+                - dropCharge (Fare) - The drop-charge fee the traveler will pay for rental car drop-off at a different location. A “drop charge” occurs when renting a vehicle in one rental location and returning the vehicle to a different rental location. Includes amount, currency, and description.
+                - oneWayDropFee (Fare) - The one-way drop fee the traveler will pay for rental car drop-off at a different location. A one-way drop fee occurs when renting a vehicle in one rental location and returning the vehicle to a different rental location. Includes amount, currency, and description.
+                - extraDayMileageFee (Fare) - The mileage fee if the rental is returned a day late. This fee occurs when a rental car is returned a day past the original reservation end-time (at the time of booking) and is charged every day until the rental car is returned. Includes amount, currency, and description.
+                - extraHourMileageFee (Fare) - The mileage charge if the rental is returned an hour late. This fee occurs when a rental car is returned an hour past the original reservation end-time (at the time of booking) and is charged every hour until the rental car is returned. Includes amount, currency, and description.
+                - extraWeekFee (Fare) - The fee if the rental is returned a week late. This fee occurs when a rental car is returned a week past the original reservation end-time (at the time of booking) and is charged every week until the rental car is returned. See also ‘extraWeekMileageFee.’ Includes amount, currency, and description.
+                - extraWeekMileageFee (Fare) - The mileage fee if the rental is returned a week late. This extra mileage fee occurs when a rental car is returned a week past the original reservation end-time (at the time of booking) and is charged every week until the rental car is returned. See also ‘extraWeekFee.’ Includes amount, currency, and description.
+                - mileageAllowance: `Unlimited Free Miles` (string) - A text description of the distance in miles or kilometers covered for the duration of the reservation period.
+                - extraWeekMileageAllowance: `Unlimited Miles Per Extra Week` (string) - A text description of the distance in miles or kilometers covered for an extra week of rental.
+                - extraDayMileageAllowance: `Unlimited Miles Per Extra Day` (string) - A text description of the distance in miles or kilometers covered for an extra day of rental.
+                - extraHourMileageAllowance: `Unlimited Free Miles` (string) - A text description of the distance in miles or kilometers covered for an extra hour of rental.
+                - distanceUnitOfMeasure: `1` (enum[number]) - The unit of distance in miles or kilometers. 
+                    + Sample: 0
+                    + Members
+                        + 0 - Miles
+                        + 1 - Kilometers
+                - dcsAuxRateCode (string)
+                - corporateDiscountNumber: `404846` (string) - The corporate brand rewards program code (also known as discount number) to be applied to the rate of the reservation.
+            - bookingSource: `38747881` (string) - The alpha or numeric identifier provided by the company, system, or application providing the booking data.
+            - clientIdNumber (string) - The alpha or numeric identifier that identifies the traveler or the corporate client.
+            - creditCardGuarantee (string) - The masked credit card number for the reservation.
+            - loyaltyMemberships (array) - Contains information related to the Frequent Traveler Program(s) to be applied to the rate. This entitles the customer the opportunity to earn miles or points with company partners including airlines, hotels and other select companies.  
+                - (object)
+                    - loyaltyMembership (LoyaltyMembership) - Contains information related to the loyalty program membership of the traveler. Includes travel supplier, loyalty program and member information.
+            - notes (string) - Any additional notes for the reservation.
+            - segmentRemarks (array[string]) - A text description of remarks associated to the travel segment. If multiple remarks exist, then multiple strings will be returned.
+            
+        - segment[type='Hotel'] (object) - Contains information related to the hotel reservation of the traveler. Includes hotel confirmation, check-in/check-out, property name, location and contact details, rates, and all other information available.
+            - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record. 
+            - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The hotel confirmation number for the booking.
+            - startDateTime (string) - The ISO 8601 date/time of hotel check-in.
+            - endDateTime (string) - The ISO 8601 date/time of hotel check-out.
+            - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
+            - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
+            - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
+            - reservationName (string) - The name of the traveler for the reservation. 
+            - property (object) - Contains information related to the hotel chain and its hotel property for the reservation. Includes hotel code, name, and chain information.
+                - code: `DENCYHH` (string) - The hotel property code.
+                - name: `Hilton Denver City Center` (string) - The name of the hotel property.
+                - hotelChain (object) - Contains information related to the hotel chain to which the hotel property belongs. For example, Hilton Denver City Denver belongs to the Hilton International hotel chain. Includes hotel chain code,  description, and telephone information.
+                    - code: `HL` (string) - The hotel chain code.
+                    - description: `Hilton International` (string) - A text description of the hotel chain.
+                - phone (Phone) - Contains the telephone information of the hotel property (in hotel ‘code’). Includes telephone number and type.
+                - address (Address) - Contains hotel street address, city, region, country, notes and geocoordinates. 
+                - airportCode: `DAL` (string) - The 3-character IATA airport code of the nearest airport.
+            - numberOfNights: `3` (number) - The number of nights the hotel room(s) has been reserved for the reservation.
+            - numberOfRooms: `1` (number) - The number of hotel rooms for the reservation.
+            - room (object) - Contains information related to the hotel room(s) for the reservation. Includes hotel room type and guest information.
+                - type (HotelRoomType)
+                - numberOfGuests: `2` (number) - The total number of hotel guests.
+                - numberOfExtraAdults: `1` (number) - The number of extra adult guests. 
+                - numberOfRollawayChildBeds: `1` (number) - The number of child roll-away beds reserved.
+                - numberOfRollawayAdultBeds: `1` (number) - The number of adult roll-away beds reserved.
+                - numberOfCribs: `2` (number) - The number of infant cribs reserved.
+                - specialInstructions: `RQ NON SMK RM.KING BD` (string) - Any additional instructions/descriptions for the room.
+            - fare (HotelFare) - Contains information about the hotel room/rate. Hotel rooms and their rate codes vary according to the available room features, such as room size, location, view, and booking source (where the reservation originated). See ‘rateChangeDuringStay’ to determine whether the rate is subject to change during the reservation period. Includes hotel rate, estimated total rate, extra person rate, and rate change information.
+                - rateChangesInfos (array) - Contains information related to the start and end date-time the hotel room/rate will change during the reservation period. Returns multiple rate objects for each rate change. Includes the start/end date-time, hotel room/rate type, rate code and other information related to the change.
+                    - (HotelRateChangeInfo)
+                        - roomType (HotelRoomType)
+                - dcsAuxRequestReturnRate (string)
+                - taxInformation: `13.5PCT` (string) - The taxes to be applied to the hotel room/rate for the reservation period. 
+                - commissionInformation: `No Commission` (string) - Descriptive text of the commission to be paid to the travel agent.
+                - depositText (string) - Descriptive text of advance deposit rules and conditions.
+                - advanceDeposit (string) - Information about a deposit that must be made in advance
+                - creditCardGuarantee (string) - The masked credit card number for the reservation.
+                - serviceChargeText: `Included` (string) - Descriptive text of additional service charges.
+                - corporateDiscountNumber (string) - The corporate brand rewards program code (also known as discount number) to be applied to the rate of the reservation.
+            - bookingSource: `38747881` (string) - The alpha or numeric identifier provided by the company, system, or application providing the booking data.
+            - customerIDNumber (string) - The alphanumeric number that identifies the member within the Frequent Traveler Program.
+            - cancellationPolicy: `Cancel 2 days prior to arrival local hotel time to avoid any charges.` (string) - A text description of the hotel cancellation policy.
+            - overview: `5 NO SEGMENT DETAILS` (string) - A text description of the hotel property.
+            - loyaltyMemberships (array) - Contains information related to the Frequent Traveler Program(s) to be applied to the rate. This entitles the customer the opportunity to earn miles or points with company partners including airlines, hotels and other select companies. Surcharges may apply. Returns each of the loyalty programs used in the traveler reservation. Includes supplier type, supplier name, program name, and member number.
+                - (object)
+                    - loyaltyMembership (LoyaltyMembership) - Contains information related to the loyalty program membership of the traveler. Includes travel supplier, loyalty program and member information.
+            - notes (string) - Any additional notes for the reservation.
+            - segmentRemarks (array[string]) - A text description of remarks associated to the travel segment. If multiple remarks exist, then multiple strings will be returned.
+             
+        - segment[type='Rail'] (object) - Contains all information related to the rail carrier reservation of the traveler (a.k.a. rail journey and order). Includes confirmation, departure/arrival train station, and all other information available. 
+            - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record. 
+            - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The rail carrier confirmation number for the booking.
+            - startDateTime (string) - The ISO 8601 date/time of the train departure.
+            - endDateTime (string) - The ISO 8601 date/time of the train arrival.
+            - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
+            - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
+            - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
+            - carrier (object) - Contains information related to the rail carrier for the travel segment. Includes rail carrier information.
+                - name: `SNCF` (string) - The name of the rail carrier.
+                - operator: `2C` (string) - The code used to identify the rail carrier that will operate the passenger train.
+            - startStation (object) - Contains information related to the departure train station for the travel segment. Also known as board point. Includes station code and address.
+                - stationCode: `MOLSHEIM` (string) - The train station code.
+                - address (NonGeoCoordinatesAddress) - Contains start location street address, city, region, country and notes. 
+            - endStation (object) - Contains information related to the arrival train station for the travel segment. Also known as off point. Includes station code and address.
+                - stationCode: `MOLSHEIM` (string) - The train station code.
+                - address (NonGeoCoordinatesAddress) - Contains end location street address, city, region, country and notes. 
+            - isInternational: `true` (boolean) - Indicates whether the travel segment has a start and end location in different countries.
+            - numberInParty: `2` (number) - The number of travelers in the reservation.
+            - train (object) - Contains information related to the type of passenger train and rail coach class. In general, multiple passenger train types can be returned, such as those for long distance, inter-city, and commuter rail service. Includes train type, train number, train coach, and class of service.
+                - trainType: `TRN` (string) - The type of passenger train.
+                - trainNumber: `6602` (string) - The rail number of the segment.
+                - coachNumber: `12` (number) - The rail coach position number for the segment. For example, if ’12’ is returned, this indicates the passenger coach is 12 cars away from the train engine. 
+                - classOfService (object) - Contains information related to the rail coach class. Rail coaches are classified under an international classification by the UIC. The classification of a coach begins with one or more class letters and describes the general class of passenger coach. Includes rail class code and description.
+                    - code: `2` (string) - The fare code for the rail class of service. Can be alpha (e.g., 2) or numeric (e.g., Z).
+                    - description (string) - A text description of the rail class of service.
+                - specialInstructions: `SID02-TICKET` (string) - Any additional notes about the passenger train, ticket or room. 
+            - fare (object) - Contains information related to the rail fare (e.g. business fare) for the passenger coach class. 
+                - rateQuote (Fare) - Contains information related to the rate for the travel segment. Includes amount, currency code, and description.
+            - seatSelections (array) - Contains information related to the seat location(s) for each segment in the traveler reservation. Returns each of the seat selections of the traveler(s).
+                - (object)
+                    - seatSelection (object) - Contains the seat location for the rail segment/reservation. Includes traveler number, location, and notes.
+                        - travelerNumber: `1` (number) - The number assigned to the traveler in the passenger name record. For example, if two travelers belong to the same passenger name record, one traveler will be assigned as ’1’ and the other traveler will be assigned as ’2’.
+                        - location (string) - The actual seat location of the traveler on the rail segment.
+                        - notes (string) - Any additional notes about the seat location.
+            - mealPreferences (array) - Contains information related to the meal requested for each rail segment. Returns each of the special meal requests/preference of the traveler(s). 
+                - (object)
+                    - mealPreference (MealPreference) - Contains information related to the meal preference of the traveler for the rail segment. Includes traveler number and meal code.
+            - calculatedDuration (string) - The duration (in minutes) of the rail segment.
+            - numberOfStops (number) - The number of stops the train will make before it reaches the traveler’s destination.
+            - notes (string) - Any additional notes about the reservation.
+            - segmentRemarks (array[string]) - A text description of remarks associated to the travel segment. If multiple remarks exist, then multiple strings will be returned.
+            
+        - segment[type='CruiseFerry'] (object)
+            - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record. 
+            - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The cruise line carrier confirmation number for the booking.
+            - startDateTime (string) - The ISO 8601 date/time of the cruise or ferry departure.
+            - endDateTime (string) - The ISO 8601 date/time of the cruise or ferry arrival.
+            - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
+            - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
+            - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
+            - vendor (object) - Contains information about the cruise line carrier or ferry operator. For example, Norwegian Cruise Line. Includes cruise line code and description.
+                - code: `similique` (string) - The cruise line or ferry carrier code.
+                - name: `nec` (string) - The name of the cruise line or ferry carrier.
+            - departurePort (object) - Contains information related to the cruise port or ferry departure location. A cruise port (for commercial passengers) is any location used in international trade and transport of passengers, including seaports, airports, and other inland destinations, such as inland-, dry-, and warm-water ports. Includes cruise port code and address. 
+                - seaportCode: `euismod` (string) - The cruise port code. Can be either 5 alphabetic characters for seaports or 3 characters for airports.
+            - arrivalPort (object) - Contains information related to the cruise port or ferry arrival location. A cruise port (for commercial passengers) is any location used in international trade and transport of passengers, including seaports, airports, and other inland destinations, such as inland-, dry-, and warm-water ports. Includes cruise port code and address.
+                - seaportCode: `euismod` (string) - The cruise port code. Can be either 5 alphabetic characters for seaports or 3 characters for airports.
+            - numberInParty (number) - The number of travelers in the reservation.
+            - vessel (object) - Contains information related to the cruise/ferry cabin accommodations. Includes ship name and cabin description.
+                - name (string) - The name of the ship or boat.
+                - cabin (string) - Descriptive text of the cruise/ferry cabin reserved for the traveler(s).
+                - linkCode (string)
+            - fare (object) - Contains information related to the fare for the cruise or ferry. Includes fare and balance due date.
+                - fare (Fare) - Contains information related to the rate of the cruise/ferry. Includes rate amount, currency code, and description.
+                - balanceDueDate: `2020-09-15T17:05:00` (string) - The ISO 8601 date/time the reservation payment is due.
+            - notes (string) - Any additional notes for the reservation.
+            - segmentRemarks (array[string]) - A text description of remarks associated to the travel segment. If multiple remarks exist, then multiple strings will be returned.
+                 
+        - segment[type='Tour'] (object) - Contains information related to the tour operator reservation of the traveler. A tour segment typically includes escorted tours to a place of interest. The response will contain any available information for each travel segment (e.g. flight, hotel, car, tour) in the tour operator reservation. Includes confirmation, start/end times, and all other information available. 
+            - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record.
+            - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The tour operator confirmation number for the booking.
+            - startDateTime (string) - The ISO 8601 date/time when the tour/travel package begins.
+            - endDateTime (string) - The ISO 8601 date/time when the tour/travel package ends.
+            - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
+            - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
+            - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
+            - vendor (object) - Contains information related to the tour operator. 
+                - name (string) - The name of the tour operator.   
+            - startLocation (object) - Contains information related to the outbound/departure location. Include departure location and address.
+                - locationName (string) - The location where the travel segment will begin. Can be an airport code or location name (e.g. Marriott Hotel).
+                - address (NonGeoCoordinatesAddress) - Contains end location street address, city, region, country and notes.
+            - endLocation (object) - Contains information related to the destination/arrival location. Include return location and address.
+                - locationName (string) - The location where the travel segment will end. Can be an airport code or location name (e.g. Marriott Hotel).
+                - address (NonGeoCoordinatesAddress) - Contains end location street address, city, region, country and notes.
+            - vehicle (object) - Contains information related to ground transportation vehicles reserved for the tour/travel package, such as a chauffeured vehicle. Includes vehicle description and details.
+                - description: `Limo` (string) - A description of the vehicle.
+                - carInformation: `Chauffeur Driven Car` (string) - Any additional details about the vehicle.
+            - flight (object) - Contains marketing carrier information for the flight segment as indicated in the passenger name record. Includes airline code, name, and flight number.
+                - airlineName: `American Airlines` (string) - The full name of the airline.
+                - flightNumber: `7264` (string) - The flight number of the segment.
+            - fare (object) - Contains information related to the fare of the tour/travel package. Includes a cost breakdown of deposit, balance and fees.
+                - agencyCommission (Fare) - Contains information related to the commission to be paid to the travel agent. Includes amount, currency code, and description.
+                - balanceAmount (Fare) - Contains information related to the balance remaining for the tour/travel package. Includes amount, currency code, and description.
+                - cancellationFee (Fare) - The fee charged to the traveler for cancellation. Includes amount, currency code, and description.
+                - depositAmountDue (Fare) - Contains information related to the advance deposit amount to secure the reservation. Includes amount, currency code, and description.
+                - totalTax (Fare) - Contains information related to the total taxes for the reservation. Includes amount, currency code, and description.
+                - basePrice (Fare) - Contains information related to the base rate for the tour/travel package, excluding deposits, commissions, taxes and fees. Includes amount, currency code, and description.
+                - totalRate (Fare) - Contains information related to the cost of the tour/travel package, excluding commissions, taxes and fees. Includes amount, currency code, and description.
+                - tourRate (Fare) - Contains information related to the cost of the tour/travel package, excluding commissions, taxes and fees. Includes amount, currency code, and description.
+                - tourRateFreeText (string) - Any additional details about the rate.
+                - guaranteeIndicator (string) - Indicates whether the rate is guaranteed.
+                - corporateDiscountNumber (string) - The corporate brand rewards program code (also known as discount number) to be applied to the rate of the reservation.
+            - tour (object) - Contains information related to the tour operator. Includes telephone information, tour features and services.
+                - phone (Phone) - The telephone number of the tour operator.
+                - tourExtensions (string) - The extension codes available for the telephone number.
+                - tourOptions (string) - Any additional details of tour options.
+                - tourFeaturesText (string) - Any additional details of tour features and highlights.
+                - serviceEndDate (string) - The ISO 8601 date/time when the tour ends.
+                - serviceInformation (string) - Any additional details for available tour services.
+            - hotel (object) - Contains information related to the hotel reservation for the tour/travel package. Includes hotel information, and the number of nights and rooms reserved.
+                - propertyName: `Hilton Denver City Center` (string) - The name of the hotel property.
+                - numberOfNights: `4` (number) - The number of nights the hotel room(s) has been reserved for the reservation.
+                - numberOfRooms: `2` (number) - The number of hotel rooms for the reservation.
+                - roomType (HotelRoomType)
+            - notes (string) - Any additional notes for the reservation.
+            - segmentRemarks (array[string]) - A text description of remarks associated to the travel segment. If multiple remarks exist, then multiple strings will be returned.
+                 
+        - segment[type='Bus'] (object) - Contains information related to the bus line carrier reservation of the traveler. Returns intercity and regional bus line carrier reservations. Includes confirmation, journey departure/arrival, rates, and all other information available.
+            - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record.
+            - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The bus line operator confirmation number for the booking.
+            - startDateTime: `2020-09-15T15:40:00` (string) - The ISO 8601 date/time when the bus departs from the station.
+            - endDateTime: `2020-09-18T15:40:00` (string) - The ISO 8601 date/time when the bus arrives at the station.
+            - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
+            - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
+            - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
+            - vendor (object) - Contains information related to the bus line operator. Includes operator name.
+                - name: `curabitur` (string) - The name of the bus line operator.
+            - departureStation (object) - Contains information related to the bus departure location (from the traveler’s origin). Includes departure address.
+                - address (NonGeoCoordinatesAddress) - Contains departure location street address, city, region, country and notes.
+            - arrivalStation (object) - Contains information related to the bus arrival location (to the traveler’s final destination). Includes arrival address.
+                - address (NonGeoCoordinatesAddress) - Contains arrival location street address, city, region, country and notes.
+            - numberInParty (number) - The number of travelers in the reservation.
+            - fare (object) - Contains information related to the fare for the bus journey. Includes quoted rate, penalty rate, and net rate.
+                - quotedRate (Fare) - Contains information related to the quoted/estimated rate of the bus journey. Includes rate amount, currency code, and description.
+                - penaltyRate (Fare) - Contains information related to the penalty rate of the bus journey. Includes rate amount, currency code, and description.
+                - netRate (Fare) - Contains information related to the net rate of the bus journey. Includes rate amount, currency code, and description.
+            - notes (string) -  Any additional notes for the reservation.
+            - segmentRemarks (array[string]) - A text description of remarks associated to the travel segment. If multiple remarks exist, then multiple strings will be returned.
+             
++ fareInfos (array) - Contains information related to the fare for each travel segment (e.g. air, car and hotel). If multiple travel segments exist in the passenger name record, then fare information will be returned for the travel segments. 
+    - (object)
+        - fareInfo (object) - Contains fare information related to the travel segment(s).
+            - segmentNumbers (array[string]) - Contains a list of the travel segment numbers related to the fare.
+            - travelerNumbers (array[string]) - Contains a list of the traveler numbers related to the fare. For example, if two travelers belong to the same passenger name record, one traveler will be assigned as ’1’ and the other traveler will be assigned as ’2’.
+            - fare (Fare) - Contains fare information related to the travel segment(s).
+            - estimatedTotalFare (Fare) - Contains the total estimated fare of the travel segment, including taxes and other mandatory governmental charges. Includes amount, currency and description.
+            - fareBreakdown (array[Fare]) - Contains a fare breakdown for non-GDS travel segments. For example, fuel surcharges for the base fare.
+            
++ remarks (array) - Contains any/all available information related to the passenger name record remarks. 
+    - (object)
+        - remark (object) - Contains passenger name record remarks for the travel segment.
+            - lineNumber: `225` (number) - The line number in the passenger name record where the remark is referenced. 
+            - type: `1`  (enum[number]) - The type of remark. 
+                + Members
+                    + 0 - Unknown 
+                    + 1 - Confidential 
+                    + 2 - Invoice
+                    + 3 - Miscellaneous
+                    + 4 - QualityControl 
+                    + 5 - General
+                    + 6 - Itinerary
+                    + 7 - Vendor_Outgoing
+                    + 8 - Vendor_Incoming
+                    + 9 - Passenger
+                    + 10 - Alphacoded
+                    + 11 - Historical
+                    + 12 - ClientAddress
+                    + 13 - FutureQueue
+                    + 14 - DeliveryAddress
+                    + 15 - FormOfPayment
+                    + 16 - Unique
+                    + 17 - PassportInfo
+                    + 18 - Corporate
+            - category: `S` (string) - The category of the remark.
+            - contents (string) - The passenger name record remark contents.
+            - travelerNumbers: `2` (string) - Contains a list of the traveler numbers related to the remark. For example, if two travelers belong to the same passenger name record, one traveler will be assigned as ’1’ and the other traveler will be assigned as ’2’.
+            - segmentNumbers: `1,2` (string) - A list of numbers used to identify the travel segment in the passenger name record.
+
+                
+## SearchRequest (object)
+### Properties
+- limit: 50 (number) - The maximum number of trip records to return on this particular call. If a user has 45 trip records but 'limit' is set to 20 and offset is not set, the first 20 reservations out of the 45 will be returned. If 'offset' is set to 21, this will return the next 20 results (#21-40). If 'offset' is set to 41 and 'limit' is still 20, we will receive the last few results in the total list (#41-45). Valid values can be between 1 and 100.
+- offset: 0 (number) - The n'th booking in the total list from which the results in this call will start. If a user has 45 trip records but this 'limit' is set to 20 and 'offset' is not set, the first 20 reservations out of the 45 will be returned. If offset is set to 21, this will return the next 20 results (#21-40). If 'offset' is set to 41 and 'limit' is still 20, we will receive the last few results in the total list (#41-45). Minimum value of offset is 0.
+- sort: `travelerFirstName`, `travelerLastName`, `sourceModifiedDateTime`, `lastModifiedDateTime`, `ticketedDateTime`, `bookingDateTime` (array) - The order by which to sort the result set. If 'sort' is specified in the request, then ascending (in '"asc"') or descending (in '"desc"') order is required. For example, "travelerLastName" : "asc".
+- accountId: `999999` (string) - The BCD specific identifier for the regional corporate office that owns the record (aka SMID).
+- airCountryCode: `US` (string) - Filters on country of both arrival and departure airport country code.
+- airline: `DL`, `AF` (array[string]) - The 2-character code used to identify the airline. Accepts an array of inputs. Our systems search any/all available trip records mapped to the specified airline code(s).
+- airportCode: `ATL`, `JFK` (array[string]) - The 3-character IATA airport code(s) of the flight arrival or departure. Accepts an array of inputs. Our systems search any/all available flight trip records that arrive or depart from the specified airport code(s). Includes 'departureAirportCode' and 'arrivalAirportCode' of all flight segments. **Conditions**: if 'airportCode' is specified in the request, then then it is advised not to specify 'departureAirportCode' or 'arrivalAirportCode' in the same request.
+- airTravelDate: `2020-02-14T19:47 TO 2020-02-18T19:47` (string) - The ISO 8601 date/time or date/time range of the flight arrival or departure. Our systems search any/all available flight trip records with a departure or arrival date that falls on or within the specified date/time range. Includes 'departureDate' and 'ArrivalDate' of all flight segments. **Conditions**: if 'airTravelDate' is specified in the request, then it is advised not to specify 'departureDate' or 'arrivalDate' in the same request. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
+- arrivalAirportCode: `ATL`, `JFK` (array[string]) - The 3-character IATA airport code(s) of the flight arrival. Accepts an array of inputs. Our systems search any/all available trip records that arrive at the specified airport code(s). **Conditions**: if 'arrivalAirportCode' or 'departureAirportCode' is specified in the request, it is advised not to specify 'airportCode' in the same request.
+- arrivalCity: `Atlanta`, `New York` (array[string]) - The name(s) of the city used to identify the metropolitan area of the arrival airport. Accepts an array of inputs. Our systems search any/all available flight trip records with an arrival airport in the specified city name(s). **Conditions**: if 'arrivalCity' or 'departureCity' is specified in the request, then it is advised not to specify 'airCity' in the same request.
+- arrivalCountryCode: `US`, `CA` (array[string]) - The 2-character ISO 3166 country code(s) of the arrival airport. Accepts an array of inputs. Our systems search any/all available flight trip records with an arrival airport in the specified country code(s). **Conditions**: if 'departureCountryCode' or 'arrivalCountryCode' is specified in the request, then it is advised not to specify 'airCountryCode' in the same request.
+- arrivalDate: `2020-02-14T19:47 TO 2020-02-18` (string) - The ISO 8601 date/time or date/time range of the flight arrival. Our systems search any/all available flight trip records that have an arrival date that falls on or within the specified date/time range. **Conditions**: if 'departureDate' or 'arrivalDate' is specified in the request, it is advised not to specify 'airTravelDate' in the same request. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
+- bookingDateTime: `2020-02-13T19:47 TO 2020-02-15` (string) - The ISO 8601 date/time when the booking was created. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
+- carAirportCode: `ATL`, `JFK` (array[string]) - The 3-character IATA airport code(s) of the nearest airport for the pick-up or drop-off location. Accepts an array of inputs. Our systems search any/all available rental car trip records that are mapped to the specified airport code(s). Includes 'pickupAirportCode' and 'dropoffAirportCode' of all rental car segments. **Conditions**: if 'carCountry' is specified in the request, then it is advised not to specify 'pickupCountryCode' or 'dropoffCountryCode' in the same request.
+- carCity: `Atlanta`, `Chicago` (array[string]) - The name(s) of the city used to identify the metropolitan area of the rental car pick-up or drop-off location. Accepts an array of inputs. Our systems search any/all available rental car trip records that are mapped to the specified city name(s). Includes 'pickupCity' or 'dropoffCity' of all rental car segments. **Conditions**: if 'carCity' is specified in the request, then it is advised not to specify 'pickupCity' or 'dropoffCity' in the same request.
+- carCountryCode: `US`, `CA` (array[string]) - The 2-character ISO 3166 country code(s) of the rental car pick-up or drop-off location. Accepts an array of inputs. Our systems search any/all available rental car trip records that are mapped to the specified country code(s). **Conditions**: if 'carCountryCode' is specified in the request, then it is advised not to specify 'pickupCountryCode' or 'dropoffCountryCode' in the same request.
+- carRentalDate: `2020-02-13 TO 2020-02-15` (string) - The date or date range of the rental car pick-up or drop-off (in YYYY-MM-DD format). Our systems search any/all available rental car trip records that have a pick-up or drop-off date that falls on or within the specified date/time range. Includes 'pickupDate' and 'dropoffDate' of all rental car segments. **Conditions**: if 'carRentalDate' is specified in the request, then it is advised not to specify 'pickupDate' or 'dropoffDate' in the same request. **Note**: time can be specified (in THH:MM format) in the request, but is not advised.
+- checkinDate: `2020-02-14 TO 2020-02-18` (string) - The date or date range of hotel check-in (in YYYY-MM-DD format). Our systems search any/all available hotel trip records that have a check-in date that falls on or within the specified date/time range. **Conditions**: if 'checkInDate' or 'checkOutDate' is specified in the request, then it is advised not to specify 'hotelStayDate' in the same request. **Note**: time can be specified (in THH:MM format) in the request, but is not advised.
+- checkoutDate: `2020-02-18` (string) - The date or date range of hotel check-out (in YYYY-MM-DD format). Our systems search any/all available hotel trip records that have a check-out date that falls on or within the specified date/time range. **Conditions**: if 'checkInDate' or 'checkOutDate' is specified in the request, then it is advised not to specify 'hotelStayDate' in the same request. **Note**: time can be specified (in THH:MM format) in the request, but is not advised.
+- confirmationNumber: `BCD123` (string) - The confirmation number of any segment type within the trip record.
+- dateRange: `active`, `past`, `all` (array[string]) - Filters results to include any/all available trip records that are active (in "active"), inactive (in "past"), or active/inactive (in "all"). If unspecified in the request, all results are returned by default.
+- departureAirportCode: `ATL`, `JFK` (array[string]) - The 3-character IATA airport code(s) of the flight departure. Accepts an array of inputs. Our systems search any/all available flight trip records that depart from the specified airport code(s). **Conditions**: if 'arrivalAirportCode' or 'departureAirportCode' is specified in the request, it is advised not to specify 'airportCode' in the same request.
+- departureCity: `Seattle` (array[string]) - The name(s) of the city used to identify the metropolitan area of the departure airport. Accepts an array of inputs. Our systems search any/all available flight trip records with a departure airport in the specified city name(s). **Conditions**: if 'arrivalCity' or 'departureCity' is specified in the request, then it is advised not to specify 'airCity' in the same request.
+- departureCountryCode: `US`, `CA` (array[string]) - The 2-character ISO 3166 country code(s) of the departure airport. Accepts an array of inputs. Our systems search any/all available flight trip records with a departure airport in the specified country code(s). **Conditions**: if 'departureCountryCode' or 'arrivalCountryCode' is specified in the request, then it is advised not to specify 'airCountryCode' in the same request.
+- departuredate: `2020-02-14T19:47 TO 2020-02-18T19:47` (string) - The ISO 8601 date/time or date/time range of the flight departure. Our systems search any/all available flight trip records that have an departure date that falls on or within the specified date/time range. **Conditions**: if 'departureDate' or 'arrivalDate' is specified in the request, it is advised not to specify 'airTravelDate' in the same request. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
+- dropoffAirportCode: `ATL`, `JFK` (array[string]) - The 3-character IATA airport code(s) of the nearest airport for the drop-off location. Accepts an array of inputs. Our systems search any/all available rental car trip records with a drop-off location that is mapped to the specified airport code(s). **Conditions**: if 'pickupAirportCode' or 'dropoffAirportCode' is specified in the request, then it is advised not to specify 'carAirportCode' in the same request.
+- dropoffCity: `Atlanta`, `Chicago` (array[string]) - The name(s) of the city used to identify the metropolitan area of the rental car drop-off location. Accepts an array of inputs. Our systems search any/all available rental car trip records with a drop-off location that is mapped to the specified city name(s). **Conditions**: if 'pickupCity' or 'dropoffCity' is specified in the request, then it is advised not to specify 'carCity' in the same request.
+- dropoffCountryCode: `MX` (array[string]) - The 2-character ISO 3166 country code(s) of the rental car drop-off location. Accepts an array of inputs. Our systems search any/all available rental car trip records with a drop-off location that is mapped to the specified country code(s). **Conditions**: if 'pickupCountryCode' or 'dropoffCountryCode' is specified in the request, then it is advised not to specify 'carCountry' in the same request.
+- dropoffDate: `2020-02-14 TO 2020-02-18` (string) - The date or date range of the rental car drop-off (in YYYY-MM-DD format). Our systems search any/all available rental car trip records that have a drop-off date that falls on or within the specified date/time range. **Conditions**: if 'pickupDate' or 'dropoffDate' is specified in the request, then it is advised not to specify 'carRentalDate' in the same request. **Note**: time can be specified (in THH:MM format) in the request, but is not advised.
+- flightNumber: `3093` (string) - The flight number of the segment.
+- flightType: `oneWay`, `roundTrip`, `openJaw` (array[string]) - Filters results to include only one-way (in 'oneWay'), round-trip (in 'roundTrip'), or open-jaw (in 'openJaw') flight segment types. Accepts an array of inputs.
+- gds: `Sabre`, `Apollo`, `Worldspan`, `Amadeus`, `Galileo` (array[string]) - The name(s) of the global distribution system (GDS) where the passenger name record (PNR) is recorded. Accepts an array of inputs. Our systems search any/all available trip records that belong to the specified GDS name(s).
+- globalCustomerNumber: `9999999999` (string) - The global BCD specific number of the corporate account (in 'accountId').
+- hasAir: `true` (boolean) - Filters results to include any/all available trip records with a flight segment.
+- hasCar: `true` (boolean) - Filters results to include any/all available trip records with a rental car segment.
+- hasConnectedSegments: `true` (boolean) - Filters results to include any/all available flight segments with a connected segment. For example, if the flight has one or more connected flight segments (i.e. “stop-over”) from origin to destination.
+- hasHotel: `true` (boolean) - Filters results to include any/all available trip records with a hotel segment.
+- hasLimo: `false` (boolean) - Filters results to include any/all available trip records with a limo segment. For example, a tour package that contains a limousine reservation.
+- hasMarriedSegments: `true` (boolean) - Filters results to include any/all available flight segments with a married segment. For example, if the flight is shared between two or more airlines and priced/ticketed as a single flight.
+- hotelAirportCode: `JFK`, `LAX` (array[string]) - The 3-character IATA airport code(s) of the nearest airport. Accepts an array of inputs. Our systems search any/all available hotel trip records that are mapped to the specified airport code(s).
+- hotelCity: `Atlanta`, `New York` (array[string]) - The name(s) of the city used to identify the metropolitan area of the hotel. Accepts an array of inputs. Our systems search any/all available hotel trip records that are mapped to the specified city name(s).
+- hotelCountryCode: `US`, `CA` (array[string]) - The 2-character ISO 3166 country code(s) of the hotel. Accepts an array of inputs. Our systems search any/all available hotel trip records that are mapped to the specified country code(s).
+- hotelStayDate: `2020-02-14 TO 2020-02-18` (string) - The date or date range of the hotel check-in or check-out (in YYYY-MM-DD format). Our systems search any/all available hotel trip records with a check-in or check-out date on the specified date, or within the specified date range. Includes 'checkInDate' and 'checkOutDate' of all hotel segments. **Conditions**: if 'hotelStayDate' is specified in the request, then it is advised not to specify 'checkInDate' or 'checkOutDate' in the same request. **Note**: time can be specified (in THH:MM format) in the request, but is not advised.
+- isAirOnly: `true` (boolean) - Filters results to include only trip records with a flight segment and exclude all other travel segment types.
+- isCarOnly: `true` (boolean) - Filters results to include only trip records with a rental car segment and exclude all other travel segment types.
+- isHotelOnly: `true` (boolean) - Filters results to include only trip records with a hotel segment and exclude all other travel segment types.
+- isInternational: `true` (boolean) - Filters results to include any/all available international trip records.
+- isOnlineBooking: `true` (boolean) - Filters results to include trip records that took place online.
+- isPassiveCar: `true` (boolean) - Filters results to include any/all available rental car segments that were manually entered by a travel agent.
+- isPassiveFlight: `true` (boolean) - Filters results to include any/all available flight segments that were manually entered by a travel agent.
+- isPassiveHotel: `true` (boolean) - Filters results to include any/all available hotel segments that were manually entered by a travel agent.
+- id: `2b0e301b-3865-4e62-a34b-397271bd4593` (string) - The BCD specific identifier of the trip record. Supports any GDS or non-GDS booked flight, rental car, hotel, rail, cruise/ferry, tour, or bus as the identifier.
+- lastModifiedDateTime: `2020-02-14T10:30 TO 2020-02-14T10:45` (string) - The ISO 8601 date/time when the booking was last modified. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
+- pickupAirportCode: `ATL`, `JFK` (array[string]) - The 3-character IATA airport code(s) of the nearest airport for the pick-up location. Accepts an array of inputs. Our systems search any/all available rental car trip records with a pick-up location that is mapped to the specified airport code(s). **Conditions**: if 'pickupAirportCode' or 'dropoffAirportCode' is specified in the request, then it is advised not to specify 'carAirportCode' in the same request.
+- pickupCity: `Atlanta`, `Chicago` (array[string]) - The name(s) of the city used to identify the metropolitan area of the rental car pick-up location. Accepts an array of inputs. Our systems search any/all available rental car trip records with a pick-up location that is mapped to the specified city name(s). **Conditions**: if 'pickupCity' or 'dropoffCity' is specified in the request, then it is advised not to specify 'carCity' in the same request.
+- pickupCountryCode: `US`, `CA` (array[string]) - An array of country codes to match. Trip can match any/all of provided country codes. *Conflicts with **countryCode** *
+- pickupDate: `2020-02-14 TO 2020-02-18` (string) - The date or date range of the rental car pick-up (in YYYY-MM-DD format). Our systems search any/all available rental car trip records that have a pick-up date that falls on or within the specified date/time range. **Conditions**: if 'pickupDate' or 'dropoffDate' is specified in the request, then it is advised not to specify 'carRentalDate' in the same request. **Note**: time can be specified (in THH:MM format) in the request, but is not advised.
+- recordLocator: `BMSAAD` (string) - The GDS passenger name record (PNR) identifier.
+- sourceId: `780569999999999` (string) - The alpha numeric trip identifier provided by the travel/source provider (e.g. provided by Air B&B).
+- travelCity: `Atlanta`, `New York` (array[string]) - The name(s) of the city used to identify the metropolitan area of the arrival or departure airport. Accepts an array of inputs. Our systems search any/all available flight trip records that arrive or depart from the specified city name(s). Includes 'arrivalCity' or 'departureCity' of all flight segments. **Conditions**: if 'travelCity' is specified in the request, then it is advised not to specify 'arrivalCity' or 'departureCity' in the same request.
+- travelCountryCode: `US`, `CA` (array[string]) - The 2-character ISO 3166 country code(s) of the flight arrival or departure airport. Accepts an array of inputs. Our systems search any/all available flight trip records that arrive or depart from within the specified country code(s). Includes 'departureCountryCode' and 'arrivalCountryCode' of all flight segments. **Conditions**: if 'airCountryCode' is specified in the request, then it is advised not to specify 'departureCountryCode' or 'arrivalCountryCode' in the same request.
+- travelerEmailAddress: `joe.smith@bcdtravel.com` (string) - The traveler email address associated with the trip record.
+- travelerFirstName: `Joe` (string) - The first name of the traveler associated with the trip record.
+- travelerLastName: `Smith` (string) - The last name of the traveler associated with the trip record.
+- travelerPhoneNumber: `1234567890` (string) - The traveler phone number associated with the trip record.
+- tripDate: `2020-02-10` (string) - Filters results to include any/all available trip records that occur on the specified date, or within the specified date range. Our systems search any/all available trip records that have a start or end date that falls on or within this specified date/time. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
+- sourceModifiedDateTime: `2020-02-10` (string) - The ISO 8601 date/time when the booking was last modified at the source. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
+
+## ReservationStatus (object)
+### Properties
+- code: `HK` (string) - The status code of the reservation.
+- description: `Booked` (string) - A text description of the reservation status.
+
+## Fare (object)
+### Properties
+- amount: `99.00` (string) - The balance due amount.
+- currency: `USD` (string) - The 3-character ISO 4217 currency code. 
+- description: `Paid at checkin` (string) - Any additional notes about the balance due.
+
+## Flight (object)
+### Properties
+- airlineCode: `DL` (string) - The 2-character airline code.
+- airlineName: `Delta` (string) - The full name of the airline.
+- flightNumber: `7264` (string) - The flight number of the segment.
+
+## Email (object)
+### Properties
+- emailAddress: `joe.smith@bcdtravel.com` (string, required) - The email address.
+- type: `Booker` (string) - The type of email address.
+
+## Phone (object)
+### Properties
+- number: `770-330-9303` (string, required) - The telephone number. May contain extension codes.
+- type: `Home` (string) - The type of telephone number.
+
+## SeatPreference (object)
+### Properties 
+- locationCode (string) - The code of the seat request/preference of the traveler.
+- locationText (string) - A description of the seat request/preference of the traveler.
+- notes (string) - Any additional notes in the passenger name record about the seat request/preference.
+- segmentNumber (number) - The number used to identify the travel segment in the passenger name record.
+
+## SeatSelection (object)
+### Properties
+- travelerNumber (number) - The number assigned to the traveler in the passenger name record. For example, if two travelers belong to the same passenger name record, one traveler will be assigned as ’1’ and the other traveler will be assigned as ’2’.
+- location: `15F` (string) - The actual seat location of the traveler on the flight segment.
+- notes (string) - Any additional notes in the passenger name record about the traveler seat preference.
+
+## LoyaltyMembership (object)
+- supplierType: `Hotel` (string) - The type of travel segment. Can be Air, Car or Hotel.
+- supplier: `Marriott` (string) - The name of the Frequent Traveler Program supplier. 
+- programName: `IHG Rewards Club` (string) - The name of the Frequent Traveler Program. 
+- memberNumber: `ZN837403` (string) - The alphanumeric number that identifies the member within the Frequent Traveler Program.
+
+## HotelFare (object)
+### Properties
+- rateCode (string) - The hotel room/rate code.
+- rateDescription (string) - A text description of the hotel room/rate.
+- ratePlan (string) - The name of the hotel room/rate plan. (A rate plan is when the hotel sets a different rate for one room. For example, a non-refundable rate plan.)
+- rateSchedule (string) - The hotel room/rate payment schedule. 
+- isMultiDateRate (boolean) - Indicates whether the hotel room/rate applies to multiple dates in the reservation. 
+- rate (Fare) - Contains information related to the hotel room/rate per night. Based on the rate code (in rateCode). Excludes additional charges, such as hotel occupancy taxes or fees. Includes rate amount, currency, and notes.
+- estimatedTotalRate (Fare) - Contains information related to the estimated total for the reservation period. An estimated total rate includes governmental-imposed taxes and other mandatory charges by the hotel property. Includes rate amount, currency, and notes.
+- extraPersonRate (Fare) - The cost per night for additional adult guests. Hotel rooms/rates are based on double/standard occupancy and often charge additional costs per night for each additional adult guest. For example, $20 per night for each additional adult guest. 
+- rateChangeDuringStay (boolean) - Indicates whether the hotel room/rate will change during the reservation period. If the rate is subject to change, see 'rateChangeInfos'. 
+
+## HotelRateChangeInfo (object)
+### Properties
+- beginDateTime (string) - The ISO 8601 date/time when the rate change begins.
+- endDateTime (string) - The ISO 8601 date/time when the rate change ends.
+- rate (Fare) - Contains information related to the hotel room/rate change. Includes change rate information.
+- rateCode (string) - The hotel room/rate code. 
+
+## HotelRoomType
+### Properties
+- roomType (object) - Contains information related to the hotel room. Includes hotel code and description.
+    - code: `K1QNDKZ` (string) - The code used to identify the type of hotel room.
+    - description: `1 QUEEN BED STUDIO SUITE NONSMOKING` (string) - A text description of the hotel room.
+
+## AddressCountry (object)
+### Properties
+- country (object) - Contains geographic country information of the location. Includes country code and name.
+    - code: `US` (string) - The 2-character ISO 3166 country code.
+    - name: `United States` (string) - The full name of the country.
+
+## AddressRegion (object)
+### Properties
+- region (object) - Contains geographic region information of the location. If the location is within the U.S., then the state information will be returned. Includes region code and name. 
+    - code: `USE` (string) - The code used to identify the region.
+    - name: `US - East` (string) - The full name of the region.
+
+## AddressCoordinates (object)
+### Properties
+- coordinates (object) - Contains geographic coordinates of the location. Includes latitude and longitude.
+    - latitude: `49.003197` (string) - The geographic latitude coordinates.
+    - longitude: `2.567023` (string) - The geographic longitude coordinates.
+
+## AddressCity (object)
+### Properties
+- city (object) - Contains geographic city information of the location. Includes city name and code.
+    - code: `ATL` (string) - The code used to identify the city.
+    - name: `Atlanta` (string) - The full name of the city.
+
+## Address (object)
+### Properties
+- address: `123 Sample Crt, Atlanta, GA, 30341` (string) - The full address on one line.
+- address1: `123 Sample Crt` (string) - The street address name and number.
+- address2: `Apt 202` (string) - The street address apartment, P.O. box, or suite number.
+- address3: `Third Floor` (string) - Any additional information about the address.
+- Include AddressCity
+- Include AddressRegion
+- Include AddressCountry
+- postalCode: `30341` (string) - The geographic postal code of the location. Can be alpha or numeric, depending on the country.
+- Include AddressCoordinates
+- notes: `Hartsfield-Jackson international airport` (string) - Any additional notes about the location.
+
+## NonGeoCoordinatesAddress (object)
+### Properties
+- address: `123 Sample Crt, Atlanta, GA, 30341` (string) - The full address on one line.
+- address1: `123 Sample Crt` (string) - The street address name and number.
+- address2: `Apt 202` (string) - The street address apartment, P.O. box, or suite number.
+- address3: `Third Floor` (string) - Any additional information about the address.
+- Include AddressCity
+- Include AddressRegion
+- Include AddressCountry
+- postalCode: `30341` (string) - The geographic postal code of the location. Can be alpha or numeric, depending on the country.
+- notes: `Hartsfield-Jackson international airport` (string) - Any additional notes about the location.
+
+## Airport (object)
+### Properties
+- code: `ATL` (string) - The 3-character IATA airport code.
+- name: `Hartsfield-Jackson Atlanta International Airport` (string) - The full name of the airport.
+- address (Address) - Contains geographic address information of the airport location. Includes airport street address and geocoordinates.
+- metroArea (MetroArea)
+- isMajorAirport: `true` (boolean) - Indicates whether a city code is part of a major metropolitan area, e.g. New York City. If so, a flight search using the “NYC” city code will return results for all airports within the New York City area.
+
+## FlightTicket (object)
+### Properties
+- isTicketed: `true` (boolean) - Indicates whether the flight segment has been ticketed.
+- ticketNumber: `1587337052275` (string) - The ticket number of the flight segment.
+- isTicketless: `false` (boolean) - Indicates whether the flight segment is ticketless.
+- isETicketCandidate: `false` (boolean) - Indicates whether the flight segment was issued online via e-ticket.
+
+## MetroArea (object)
+### Properties
+- metroArea (object) - Contains information related to the metropolitan area surrounding the airport. For example, New York City is the name of the metropolitan area surrounding ‘JFK’. Includes the city code and name. 
+    - code: `ATL` (string) - The city code used to identify the metropolitan area.
+    - name: `Atlanta` (string) - The full name of the metropolitan area.
+
+## MealPreference (object)
+### Properties
+- travelerNumber: `1` (number) - The number assigned to the traveler in the passenger name record. For example, if two travelers belong to the same passenger name record, one traveler will be assigned as ’1’ and the other traveler will be assigned as ’2’.
+- code (string) - A code that identifies the traveler meal preference. 
+
+## TripsResult (object)     
+### Properties
+- code: `200` (string) - The HTTP status code.
+- status: `OK` (string) - The HTTP status description.
+- remainingRecords: 123 (number) - The number of results left to retrieve in the result set. Can be used with `limit` and `offset` to retrieve the next set of results. 
+- result (TripObject) - Contains all information related to the traveler reservation of flights, rental cars, buses, trains, cruise/ferry, and tours. The response contains all available trip information in the itinerary, including trip records, reservation and ticketing details, traveler information, travel segments, fare information, and remarks.
+
+## TripsSearchResult (object)     
+### Properties
+- code: `200` (string) - The HTTP status code.
+- status: `OK` (string) - The HTTP status description.
+- remainingRecords: 123 (number) - The number of results left to retrieve in the result set. Can be used with `limit` and `offset` to retrieve the next set of results.
+- result (array[TripObject]) - Contains all information related to the traveler reservation of flights, rental cars, buses, trains, cruise/ferry, and tours. The response contains all available trip information in the itinerary, including trip records, reservation and ticketing details, traveler information, travel segments, fare information, and remarks.
