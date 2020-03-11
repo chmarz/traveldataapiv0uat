@@ -140,6 +140,7 @@ This is the last step in the travel monitoring application workflow.
         "accountId": "9063004",
         "accountCountryCode": "US",
         "customerNumber": "9063004",
+        "customerName": "DELOITTE",
         "creationOfficeId": "H2AH",
         "agentSignature": "AWS",
         "pseudoCityCode": "H2AH",
@@ -211,7 +212,15 @@ This is the last step in the travel monitoring application workflow.
           "segmentNumber": 1,
           "confirmationNumber": "QWI0Q2",
           "startDateTime": "2019-09-05T04:45:47+01:00",
+          "startTimezone": {
+            "name": "Europe/Paris",
+            "code": "CET"
+          },
           "endDateTime": "2019-09-05T17:57:53+00:00",
+          "endTimezone": {
+            "name": "Europe/London",
+            "code": "GMT"
+          },
           "status": {
             "code": "HK",
             "description": "Booked"
@@ -300,6 +309,9 @@ This is the last step in the travel monitoring application workflow.
             "description": "Non Smoking"
           },
           "flightDistance": 285,
+          "calculatedDefra": 37.76172822,
+          "calculatedDefrarf": 71.427595185,
+          "calculatedGhgp": 78.66,
           "calculatedDuration": "75",
           "numberOfStops": 0,
           "isScheduleChange": false,
@@ -357,9 +369,17 @@ This is the last step in the travel monitoring application workflow.
         {
           "type": "Hotel",
           "segmentNumber": 2,
-          "confirmationNumber": "LDVGLQ-            ",
-          "startDateTime": "2019-09-01T12:11:35",
-          "endDateTime": "2019-09-04T06:21:48",
+          "confirmationNumber": "LDVGLQ-",
+          "startDateTime": "2019-09-01T12:11:35+00:00",
+          "startTimezone": {
+            "name": "Europe/London",
+            "code": "GMT"
+          },
+          "endDateTime": "2019-09-04T06:21:48+00:00",
+          "endTimezone": {
+            "name": "Europe/London",
+            "code": "GMT"
+          },
           "status": {
             "code": "GK",
             "description": "Booked"
@@ -446,8 +466,16 @@ This is the last step in the travel monitoring application workflow.
           "type": "Car",
           "segmentNumber": 3,
           "confirmationNumber": "ZEH64024317F1",
-          "startDateTime": "2019-08-30T22:16:57",
-          "endDateTime": "2019-09-04T04:54:49",
+          "startDateTime": "2019-08-30T22:16:57+00:00",
+          "startTimezone": {
+            "name": "Europe/London",
+            "code": "GMT"
+          },
+          "endDateTime": "2019-09-04T04:54:49+00:00",
+          "endTimezone": {
+            "name": "Europe/London",
+            "code": "GMT"
+          },
           "status": {
             "code": "GK",
             "description": "Booked"
@@ -638,7 +666,15 @@ This is the last step in the travel monitoring application workflow.
           "segmentNumber": 6,
           "confirmationNumber": "QWI8Q2",
           "startDateTime": "2019-09-16T01:44:02+00:00",
+          "startTimezone": {
+            "name": "Europe/London",
+            "code": "GMT"
+          },
           "endDateTime": "2019-09-19T21:54:15+01:00",
+          "endTimezone": {
+            "name": "Europe/Paris",
+            "code": "CET"
+          },
           "status": {
             "code": "HK",
             "description": "Booked"
@@ -727,6 +763,9 @@ This is the last step in the travel monitoring application workflow.
             "description": "Non Smoking"
           },
           "flightDistance": 285,
+          "calculatedDefra": 37.76172822,
+          "calculatedDefrarf": 71.427595185,
+          "calculatedGhgp": 78.66,
           "calculatedDuration": "75",
           "numberOfStops": 0,
           "isScheduleChange": false,
@@ -940,6 +979,7 @@ The `tripId` in the response can be used to view a single itinerary from the res
           "accountId": "9063004",
           "accountCountryCode": "US",
           "customerNumber": "9063004",
+          "customerName": "DELOITTE",
           "creationOfficeId": "H2AH",
           "agentSignature": "AWS",
           "pseudoCityCode": "H2AH",
@@ -1011,7 +1051,15 @@ The `tripId` in the response can be used to view a single itinerary from the res
             "segmentNumber": 1,
             "confirmationNumber": "QWI0Q2",
             "startDateTime": "2019-09-05T04:45:47+01:00",
+            "startTimezone": {
+              "name": "Europe/Paris",
+              "code": "CET"
+            },
             "endDateTime": "2019-09-05T17:57:53+00:00",
+            "endTimezone": {
+              "name": "Europe/London",
+              "code": "GMT"
+            },
             "status": {
               "code": "HK",
               "description": "Booked"
@@ -1100,6 +1148,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
               "description": "Non Smoking"
             },
             "flightDistance": 285,
+            "calculatedDefra": 37.76172822,
+            "calculatedDefrarf": 71.427595185,
+            "calculatedGhgp": 78.66,
             "calculatedDuration": "75",
             "numberOfStops": 0,
             "isScheduleChange": false,
@@ -1157,9 +1208,17 @@ The `tripId` in the response can be used to view a single itinerary from the res
           {
             "type": "Hotel",
             "segmentNumber": 2,
-            "confirmationNumber": "LDVGLQ-            ",
-            "startDateTime": "2019-09-01T12:11:35",
-            "endDateTime": "2019-09-04T06:21:48",
+            "confirmationNumber": "LDVGLQ-",
+            "startDateTime": "2019-09-01T12:11:35+00:00",
+            "startTimezone": {
+              "name": "Europe/London",
+              "code": "GMT"
+            },
+            "endDateTime": "2019-09-04T06:21:48+00:00",
+            "endTimezone": {
+              "name": "Europe/London",
+              "code": "GMT"
+            },
             "status": {
               "code": "GK",
               "description": "Booked"
@@ -1246,8 +1305,16 @@ The `tripId` in the response can be used to view a single itinerary from the res
             "type": "Car",
             "segmentNumber": 3,
             "confirmationNumber": "ZEH64024317F1",
-            "startDateTime": "2019-08-30T22:16:57",
-            "endDateTime": "2019-09-04T04:54:49",
+            "startDateTime": "2019-08-30T22:16:57+00:00",
+            "startTimezone": {
+              "name": "Europe/London",
+              "code": "GMT"
+            },
+            "endDateTime": "2019-09-04T04:54:49+00:00",
+            "endTimezone": {
+              "name": "Europe/London",
+              "code": "GMT"
+            },
             "status": {
               "code": "GK",
               "description": "Booked"
@@ -1438,7 +1505,15 @@ The `tripId` in the response can be used to view a single itinerary from the res
             "segmentNumber": 6,
             "confirmationNumber": "QWI8Q2",
             "startDateTime": "2019-09-16T01:44:02+00:00",
+            "startTimezone": {
+              "name": "Europe/London",
+              "code": "GMT"
+            },
             "endDateTime": "2019-09-19T21:54:15+01:00",
+            "endTimezone": {
+              "name": "Europe/Paris",
+              "code": "CET"
+            },
             "status": {
               "code": "HK",
               "description": "Booked"
@@ -1527,6 +1602,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
               "description": "Non Smoking"
             },
             "flightDistance": 285,
+            "calculatedDefra": 37.76172822,
+            "calculatedDefrarf": 71.427595185,
+            "calculatedGhgp": 78.66,
             "calculatedDuration": "75",
             "numberOfStops": 0,
             "isScheduleChange": false,
@@ -1727,7 +1805,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
             - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record.
             - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The airline confirmation number for the booking.
             - startDateTime (string) - The ISO 8601 date/time of the flight departure.
+            - startTimezone (Timezone) - Contains information related to the time zone of the departure airport if available.
             - endDateTime (string) - The ISO 8601 date/time of the flight arrival.
+            - endTimezone (Timezone) - Contains information related to the time zone of the arrival airport if available.
             - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
             - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
             - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
@@ -1779,6 +1859,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
                     + 13 - InSeatPowerSource
                     + 14 - InternetAccess
             - flightDistance: `976` (string) - The distance, in miles, of the flight segment.
+            - calculatedDefra: `37.76172822` (number) - The carbon footprint of the air segment calculated by the DEFRA method without radiative force.
+            - calculatedDefrarf: `71.427595185` (number) - The carbon footprint of the air segment calculated by the DEFRA method with radiative force.
+            - calculatedGhgp: `78.66` (number) - The carbon footprint of the air segment calculated by the GHGP method.
             - calculatedDuration: `237` (string) - The duration, in minutes, of the flight segment.
             - numberOfStops: `2` (number) - The number of stops the flight will make before it reaches the traveler's destination.
             - stopCityList (array) - Contains stop-over flight segment information as indicated in the passenger name record. Returned only if the flight contains one or more flight segments (i.e. “stop-overs”) from origin to destination. Returns each stop-over flight segment. 
@@ -1800,7 +1883,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
             - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record.
             - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The rental car confirmation number for the booking.
             - startDateTime (string) - The ISO 8601 date/time of the rental car pick-up.
+            - startTimezone (Timezone) - Contains information related to the time zone of the pick-up location if available.
             - endDateTime (string) - The ISO 8601 date/time of the rental car drop-off.
+            - endTimezone (Timezone) - Contains information related to the time zone of the drop-off location if available.
             - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
             - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
             - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
@@ -1894,7 +1979,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
             - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record. 
             - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The hotel confirmation number for the booking.
             - startDateTime (string) - The ISO 8601 date/time of hotel check-in.
+            - startTimezone (Timezone) - Contains information related to the time zone of the property location if available.
             - endDateTime (string) - The ISO 8601 date/time of hotel check-out.
+            - endTimezone (Timezone) - Contains information related to the time zone of the property location if available.
             - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
             - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
             - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
@@ -1944,7 +2031,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
             - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record. 
             - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The rail carrier confirmation number for the booking.
             - startDateTime (string) - The ISO 8601 date/time of the train departure.
+            - startTimezone (Timezone) - Contains information related to the time zone of the departure train station if available.
             - endDateTime (string) - The ISO 8601 date/time of the train arrival.
+            - endTimezone (Timezone) - Contains information related to the time zone of the arrival train station if available.
             - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
             - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
             - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
@@ -1987,7 +2076,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
             - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record. 
             - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The cruise line carrier confirmation number for the booking.
             - startDateTime (string) - The ISO 8601 date/time of the cruise or ferry departure.
+            - startTimezone (Timezone) - Contains information related to the time zone of the departure cruise port or ferry port location if available.
             - endDateTime (string) - The ISO 8601 date/time of the cruise or ferry arrival.
+            - endTimezone (Timezone) - Contains information related to the time zone of the arrival cruise port or ferry port location if available.
             - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
             - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
             - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
@@ -2013,7 +2104,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
             - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record.
             - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The tour operator confirmation number for the booking.
             - startDateTime (string) - The ISO 8601 date/time when the tour/travel package begins.
+            - startTimezone (Timezone) - Contains information related to the time zone of the outbound/departure location if available.
             - endDateTime (string) - The ISO 8601 date/time when the tour/travel package ends.
+            - endTimezone (Timezone) - Contains information related to the time zone of the destination/arrival location if available.
             - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
             - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
             - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
@@ -2062,7 +2155,9 @@ The `tripId` in the response can be used to view a single itinerary from the res
             - segmentNumber: `4` (number) - The number used to identify the travel segment in the passenger name record.
             - confirmationNumber: `d96c12e1-7e73-42ac-918e-0cb4314f362b` (string) - The bus line operator confirmation number for the booking.
             - startDateTime: `2020-09-15T15:40:00` (string) - The ISO 8601 date/time when the bus departs from the station.
+            - startTimezone (Timezone) - Contains information related to the time zone of the bus departure location if available.
             - endDateTime: `2020-09-18T15:40:00` (string) - The ISO 8601 date/time when the bus arrives at the station.
+            - endTimezone (Timezone) - Contains information related to the time zone of the bus arrival location if available.
             - status (ReservationStatus) - Contains information related to the reservation status. Includes code and description.
             - isPassive: `true` (boolean) - Indicates whether the travel segment was manually entered by a travel agent.        
             - isCancelled: `true` (boolean) - Indicates whether the travel segment has been cancelled.
@@ -2189,6 +2284,11 @@ The `tripId` in the response can be used to view a single itinerary from the res
 - travelerPhoneNumber: `1234567890` (string) - The traveler phone number associated with the trip record.
 - tripDate: `2020-02-10` (string) - Filters results to include any/all available trip records that occur on the specified date, or within the specified date range. Our systems search any/all available trip records that have a start or end date that falls on or within this specified date/time. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
 - sourceModifiedDateTime: `2020-02-10` (string) - The ISO 8601 date/time when the booking was last modified at the source. **Note**: the date (in YYYY-MM-DD format) is required. Only hours and minutes (not seconds) can be specified in the request.
+
+## Timezone (object)
+### Properties
+- name: `America/New_York` (string) - The time zone name designated by the closest major city of the location, such as "America/New_York", "America/Los_Angeles", and "Europe/Budapest".
+- code: `EST` (string) - The time zone represented by an alphabetic abbreviation such as "EST", "EDT, "WST", and "CST".
 
 ## ReservationStatus (object)
 ### Properties
