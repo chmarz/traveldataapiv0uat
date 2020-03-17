@@ -958,6 +958,641 @@ The `tripId` in the response can be used to view a single itinerary from the res
 }
     ```
     
+    + Schema
+
+            {
+                "$schema": "http://json-schema.org/draft-04/schema#",
+                "title": "TripSearchRequest",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "limit": {
+                        "type": [
+                            "null",
+                            "number"
+                        ]
+                    },
+                    "offset": {
+                        "type": [
+                            "null",
+                            "number"
+                        ]
+                    },
+                    "filter": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/definitions/Filter"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "filter"
+                ],
+                "definitions": {
+                    "Filter": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "accountId": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "airCountryCode": {
+                                "type": "string"
+                            },
+                            "airline": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "airportCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "airTravelDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "arrivalAirportCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "arrivalCity": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "arrivalCountryCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "arrivalDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "bookingDateTime": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "carAirportCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "carCity": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "carCountryCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "carRentalDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "checkinDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "checkoutDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "confirmationNumber": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "dateRange": {
+                                "type": "number"
+                            },
+                            "departureAirportCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "departureCity": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "departureCountryCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "departureDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "dropoffAirportCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "dropoffCity": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "dropoffCountryCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "dropoffDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "flightNumber": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "flightType": {
+                                "type": [
+                                    "number",
+                                    "string"
+                                ],
+                                "enum": [
+                                    "oneWay",
+                                    "roundTrip",
+                                    "openJaw",
+                                    1,
+                                    2,
+                                    3
+                                ]
+                            },
+                            "gds": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "globalCustomerNumber": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "hasAir": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "hasCar": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "hasConnectedSegments": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "hasHotel": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "hasLimo": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "hasMarriedSegments": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "hotelAirportCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "hotelCity": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "hotelCountryCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "hotelStayDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "isAirOnly": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "isCarOnly": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "isHotelOnly": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "isInternational": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "isOnlineBooking": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "isPassiveCar": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "isPassiveFlight": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "isPassiveHotel": {
+                                "type": [
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "id": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "lastModifiedDateTime": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "pickupAirportCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "pickupCity": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "pickupCountryCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "pickupDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "recordLocator": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "sourceId": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "travelCity": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "travelCountryCode": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "travelerLastName": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "travelerFirstName": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "travelerEmailAddress": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "travelerPhoneNumber": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "tripDate": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            },
+                            "sourceModifiedDateTime": {
+                                "type": "string",
+                                "pattern": "(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)|(^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?\\sTO\\s\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}Z?)?$)"
+                            }
+                        }
+                    }
+                }
+            }
+    
 + Response 200
 
     + Attributes(TripsSearchResult)
